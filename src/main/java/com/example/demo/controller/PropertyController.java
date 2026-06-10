@@ -31,18 +31,13 @@ public class PropertyController {
         return propertyRepository.findById(id).orElse(null);
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteProperty(@PathVariable Long id) {
-        propertyRepository.deleteById(id);
-        return "Property Deleted Successfully";
-    }
     @PutMapping("/{id}")
     public Property updateProperty(
             @PathVariable Long id,
             @RequestBody Property updatedProperty) {
 
-        Property property =
-                propertyRepository.findById(id).orElse(null);
+        Property property = propertyRepository.findById(id)
+                .orElse(null);
 
         if (property == null) {
             return null;
@@ -60,5 +55,11 @@ public class PropertyController {
         property.setStatus(updatedProperty.getStatus());
 
         return propertyRepository.save(property);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteProperty(@PathVariable Long id) {
+        propertyRepository.deleteById(id);
+        return "Property Deleted Successfully";
     }
 }

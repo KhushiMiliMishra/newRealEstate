@@ -35,20 +35,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+public User login(@RequestBody LoginRequest request) {
 
-        User user = userRepository
-                .findByEmail(request.getEmail())
-                .orElse(null);
+    User user = userRepository
+            .findByEmail(request.getEmail())
+            .orElse(null);
 
-        if (user == null) {
-            return "User Not Found";
-        }
-
-        if (user.getPassword().equals(request.getPassword())) {
-            return "Login Success";
-        }
-
-        return "Invalid Credentials";
+    if (user == null) {
+        return null;
     }
+
+    if (user.getPassword().equals(request.getPassword())) {
+        return user;
+    }
+
+    return null;
+}
 }
