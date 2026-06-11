@@ -1,0 +1,12 @@
+com\example\demo\DemoApplication.class
+com\example\demo\entity\Agent.class
+com\example\demo\entity\User.class
+com\example\demo\repository\AgentRepository.class
+com\example\demo\dto\LoginRequest.class
+com\example\demo\repository\PropertyRepository.class
+com\example\demo\controller\PropertyController.class
+com\example\demo\repository\UserRepository.class
+com\example\demo\entity\Property.class
+com\example\demo\controller\AgentController.class
+com\example\demo\controller\AuthController.class
+com\example\demo\dto\UserRequest.class
