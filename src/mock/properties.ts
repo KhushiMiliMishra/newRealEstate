@@ -1,0 +1,32 @@
+export const properties = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+    title: "Luxury Villa",
+    price: "₹2.5 Cr",
+    type: "Villa",
+    status: "Available",
+    location: "Chennai",
+    date: "08 Jun 2026",
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+    title: "Skyline Apartment",
+    price: "₹85 L",
+    type: "Apartment",
+    status: "Pending",
+    location: "Bangalore",
+    date: "06 Jun 2026",
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+    title: "Green Valley Plot",
+    price: "₹45 L",
+    type: "Plot",
+    status: "Sold",
+    location: "Coimbatore",
+    date: "04 Jun 2026",
+  },
+];
