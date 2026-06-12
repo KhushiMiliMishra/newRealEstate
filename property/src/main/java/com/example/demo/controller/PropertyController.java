@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/properties")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "")
 public class PropertyController {
 
     @Autowired
@@ -29,5 +29,16 @@ public class PropertyController {
             @PathVariable Long agentId) {
 
         return propertyService.getPropertiesByAgent(agentId);
+    }
+    @GetMapping
+    public List<Property> getAllProperties() {
+        return propertyService.getAllProperties();
+    }
+
+    @GetMapping("/{id}")
+    public Property getPropertyById(
+            @PathVariable Long id) {
+
+        return propertyService.getPropertyById(id);
     }
 }

@@ -91,4 +91,14 @@ public Property createProperty(PropertyRequest request) {
     public List<Property> getPropertiesByAgent(Long agentId) {
         return propertyRepository.findByAgentId(agentId);
     }
+    @Override
+    public List<Property> getAllProperties() {
+        return propertyRepository.findAll();
+    }
+
+    @Override
+    public Property getPropertyById(Long propertyId) {
+        return propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+    }
 }

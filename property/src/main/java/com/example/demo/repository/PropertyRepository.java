@@ -9,4 +9,5 @@ public interface PropertyRepository
         extends JpaRepository<Property, Long> {
 
     List<Property> findByAgentId(Long agentId);
+    
 }

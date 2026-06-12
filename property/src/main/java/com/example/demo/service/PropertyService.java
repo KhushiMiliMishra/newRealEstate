@@ -10,4 +10,7 @@ public interface PropertyService {
     Property createProperty(PropertyRequest request);
 
     List<Property> getPropertiesByAgent(Long agentId);
+    List<Property> getAllProperties();
+
+    Property getPropertyById(Long propertyId);
 }
