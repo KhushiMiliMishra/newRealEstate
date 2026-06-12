@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, data } from "react-router-dom";
+import axios from "axios";
 import {
   Eye,
   EyeOff,
@@ -16,14 +17,47 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (role === "ADMIN") {
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch(
+      "http://localhost:8080/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          portal: role,
+        }),
+      }
+    );
+
+    const text = await response.text();
+console.log("Response:", text);
+
+    const data = JSON.parse(text);
+    console.log(data);
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(data)
+    );
+
+    if (data.role === "ADMIN") {
       navigate("/admin/dashboard");
-    } else {
+    } else if (data.role === "AGENT") {
       navigate("/dashboard");
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Login Failed");
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
