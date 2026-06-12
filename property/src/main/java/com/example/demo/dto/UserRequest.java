@@ -2,16 +2,16 @@ package com.example.demo.dto;
 
 public class UserRequest {
 
-    private String name;
+    private String fullName;
     private String email;
     private String password;
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
