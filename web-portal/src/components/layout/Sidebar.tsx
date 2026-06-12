@@ -10,6 +10,7 @@ import {
   Users,
   UserPlus,
   ShieldCheck,
+  LogOut,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -152,6 +153,31 @@ export default function Sidebar({ role }: SidebarProps) {
           </div>
         ))}
       </nav>
+            {/* LOGOUT */}
+
+      <div className="p-4 border-t border-slate-800">
+        <button
+          className="
+            w-full
+            flex
+            items-center
+            gap-3
+            px-3
+            py-2.5
+            rounded-xl
+            text-sm
+            font-medium
+            text-red-400
+            hover:bg-red-500/10
+            hover:text-red-300
+            transition-all
+            duration-200
+          "
+        >
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
+      </div>
       
       {/* FOOTER */}
       <div className="p-4 border-t border-slate-800 text-center">
