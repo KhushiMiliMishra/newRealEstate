@@ -1,7 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PropertyRequest;
 import com.example.demo.entity.Property;
-import com.example.demo.repository.PropertyRepository;
+import com.example.demo.service.PropertyService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,52 +15,19 @@ import java.util.List;
 public class PropertyController {
 
     @Autowired
-    private PropertyRepository propertyRepository;
+    private PropertyService propertyService;
 
     @PostMapping
-    public Property addProperty(@RequestBody Property property) {
-        return propertyRepository.save(property);
+    public Property createProperty(
+            @RequestBody PropertyRequest request) {
+
+        return propertyService.createProperty(request);
     }
 
-    @GetMapping
-    public List<Property> getAllProperties() {
-        return propertyRepository.findAll();
-    }
+    @GetMapping("/agent/{agentId}")
+    public List<Property> getPropertiesByAgent(
+            @PathVariable Long agentId) {
 
-    @GetMapping("/{id}")
-    public Property getPropertyById(@PathVariable Long id) {
-        return propertyRepository.findById(id).orElse(null);
-    }
-
-    @PutMapping("/{id}")
-    public Property updateProperty(
-            @PathVariable Long id,
-            @RequestBody Property updatedProperty) {
-
-        Property property = propertyRepository.findById(id)
-                .orElse(null);
-
-        if (property == null) {
-            return null;
-        }
-
-        property.setTitle(updatedProperty.getTitle());
-        property.setDescription(updatedProperty.getDescription());
-        property.setPropertyType(updatedProperty.getPropertyType());
-        property.setTransactionType(updatedProperty.getTransactionType());
-        property.setPrice(updatedProperty.getPrice());
-        property.setBhk(updatedProperty.getBhk());
-        property.setAreaSqft(updatedProperty.getAreaSqft());
-        property.setAddress(updatedProperty.getAddress());
-        property.setCity(updatedProperty.getCity());
-        property.setStatus(updatedProperty.getStatus());
-
-        return propertyRepository.save(property);
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteProperty(@PathVariable Long id) {
-        propertyRepository.deleteById(id);
-        return "Property Deleted Successfully";
+        return propertyService.getPropertiesByAgent(agentId);
     }
 }

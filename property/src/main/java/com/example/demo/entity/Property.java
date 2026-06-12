@@ -1,9 +1,13 @@
 package com.example.demo.entity;
 
+import java.util.List;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "properties")
 public class Property {
@@ -14,7 +18,7 @@ public class Property {
     private Long propertyId;
 
     @Column(name = "agent_id")
-    private Integer agentId;
+    private Long agentId;
 
     private String title;
 
@@ -30,124 +34,62 @@ public class Property {
 
     private Integer bhk;
 
+    private Integer bathrooms;
+
+    private Integer balconies;
+
     @Column(name = "area_sqft")
     private Integer areaSqft;
+
+    @Column(name = "floor_no")
+    private Integer floorNo;
+
+    @Column(name = "total_floors")
+    private Integer totalFloors;
+
+    @Column(name = "furnishing_status")
+    private String furnishingStatus;
+
+    @Column(name = "property_age")
+    private Integer propertyAge;
+
+    @Column(name = "listing_status")
+    private String listingStatus;
+
+    @Column(name = "property_status")
+    private String propertyStatus;
+
+    private String status;
 
     private String address;
 
     private String city;
 
-    private String status;
+    
+    @Column(name = "image_1")
+    private String image1;
+
+    @Column(name = "image_2")
+    private String image2;
+
+    @Column(name = "image_3")
+    private String image3;
+
+    @Column(name = "image_4")
+    private String image4;
+
+    @Column(name = "image_5")
+    private String image5;
+
+    @Column(name = "video_url")
+    private String videoUrl;
+
+    @Column(name = "floor_plan_url")
+    private String floorPlanUrl;
+
+    @Column(name = "virtual_tour_url")
+    private String virtualTourUrl;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    public Property() {}
-
-    public Long getPropertyId() {
-        return propertyId;
-    }
-
-    public void setPropertyId(Long propertyId) {
-        this.propertyId = propertyId;
-    }
-
-    public Integer getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(Integer agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getPropertyType() {
-        return propertyType;
-    }
-
-    public void setPropertyType(String propertyType) {
-        this.propertyType = propertyType;
-    }
-
-    public String getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(String transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Integer getBhk() {
-        return bhk;
-    }
-
-    public void setBhk(Integer bhk) {
-        this.bhk = bhk;
-    }
-
-    public Integer getAreaSqft() {
-        return areaSqft;
-    }
-
-    public void setAreaSqft(Integer areaSqft) {
-        this.areaSqft = areaSqft;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-    public LocalDateTime getCreatedAt() {
-    return createdAt;
-}
-
-public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-}
 }
