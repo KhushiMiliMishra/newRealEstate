@@ -1,9 +1,13 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Agent;
-import com.example.demo.repository.AgentRepository;
+import com.example.demo.dto.AgentRegistrationRequest;
+import com.example.demo.entity.AgentProfile;
+import com.example.demo.entity.User;
+import com.example.demo.repository.AgentProfileRepository;
+import com.example.demo.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,42 +15,86 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AgentController {
 
-    @Autowired
-    private AgentRepository agentRepository;
+@Autowired
+private UserRepository userRepository;
 
-    @GetMapping("/{id}")
-    public Agent getAgent(
-            @PathVariable Long id) {
+@Autowired
+private AgentProfileRepository agentProfileRepository;
 
-        return agentRepository.findById(id)
-                .orElse(null);
+@Autowired
+private PasswordEncoder passwordEncoder;
+
+@PostMapping("/register")
+public String registerAgent(
+        @RequestBody AgentRegistrationRequest request
+) {
+
+    if (
+            userRepository
+                    .findByEmail(request.getEmail())
+                    .isPresent()
+    ) {
+        return "Email already exists";
     }
 
-    @GetMapping("/user/{userId}")
-    public Agent getAgentByUserId(
-            @PathVariable Long userId) {
+    User user = new User();
 
-        return agentRepository.findByUserId(userId);
-    }
+    user.setFullName(
+            request.getFullName()
+    );
 
-    @PutMapping("/{id}")
-    public Agent updateAgent(
-            @PathVariable Long id,
-            @RequestBody Agent updatedAgent) {
+    user.setEmail(
+            request.getEmail()
+    );
 
-        Agent agent =
-                agentRepository.findById(id).orElse(null);
+    user.setPhone(
+        request.getPhone()
+);
 
-        if (agent == null) {
-            return null;
-        }
+    user.setPasswordHash(
+            passwordEncoder.encode(
+                    request.getPassword()
+            )
+    );
 
-        agent.setFullName(updatedAgent.getFullName());
-        agent.setEmail(updatedAgent.getEmail());
-        agent.setPhone(updatedAgent.getPhone());
-        agent.setCompanyName(updatedAgent.getCompanyName());
-        agent.setStatus(updatedAgent.getStatus());
+    user.setRole("AGENT");
 
-        return agentRepository.save(agent);
-    }
+    user=userRepository.save(user);
+
+    AgentProfile profile =
+            new AgentProfile();
+
+    profile.setAgentId(
+            user.getUserId()
+    );
+
+    profile.setAgencyName(
+            request.getAgencyName()
+    );
+
+    profile.setLicenseNumber(
+            request.getLicenseNumber()
+    );
+
+    profile.setExperienceYears(
+            request.getExperienceYears()
+    );
+
+    profile.setOfficeAddress(
+            request.getOfficeAddress()
+    );
+
+    profile.setVerificationStatus(
+            "PENDING"
+    );
+
+    profile.setAverageRating(0.0);
+
+    profile.setTotalReviews(0);
+
+    agentProfileRepository.save(profile);
+
+    return "Agent Registration Submitted";
+}
+
 }
