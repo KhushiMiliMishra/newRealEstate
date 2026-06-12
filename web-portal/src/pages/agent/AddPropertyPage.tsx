@@ -1,8 +1,107 @@
 import MainLayout from "../../components/layout/MainLayout";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import api from "../../services/api";
+
 
 export default function AddPropertyPage() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+  title: "",
+  description: "",
+  propertyType: "Villa",
+  transactionType: "SALE",
+  price: "",
+  address: "",
+  city: "",
+  bhk: "",
+  bathrooms: "",
+  balconies: "",
+  areaSqft: "",
+  floorNo: "",
+  totalFloors: "",
+  furnishingStatus: "Fully Furnished",
+  propertyAge: "",
+  propertyStatus: "AVAILABLE",
+  image1: "",
+  image2: "",
+  image3: "",
+  image4: "",
+  image5: "",
+  videoUrl: "",
+  floorPlanUrl: "",
+  virtualTourUrl: ""
+});
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value,
+  });
+};
+const submitProperty = async () => {
+  try {
+    const payload = {
+  agentId: 4,
+
+  title: formData.title,
+  description: formData.description,
+
+  propertyType: formData.propertyType,
+
+  transactionType:
+    formData.transactionType === "For Sale"
+      ? "SALE"
+      : "RENT",
+
+  price: Number(formData.price),
+
+  address: formData.address,
+  city: formData.city,
+
+  bhk: Number(formData.bhk),
+  bathrooms: Number(formData.bathrooms),
+  balconies: Number(formData.balconies),
+
+  areaSqft: Number(formData.areaSqft),
+
+  floorNo: Number(formData.floorNo),
+  totalFloors: Number(formData.totalFloors),
+
+  furnishingStatus: formData.furnishingStatus,
+
+  propertyAge: Number(formData.propertyAge),
+
+  propertyStatus: formData.propertyStatus,
+
+  listingStatus: "PENDING_REVIEW",
+
+  status: "ACTIVE",
+
+  image1: formData.image1,
+  image2: formData.image2,
+  image3: formData.image3,
+  image4: formData.image4,
+  image5: formData.image5,
+
+  videoUrl: formData.videoUrl,
+
+  floorPlanUrl: formData.floorPlanUrl,
+
+  virtualTourUrl: formData.virtualTourUrl,
+};
+
+    await api.post("/properties", payload);
+
+    alert("Property Created Successfully");
+    navigate("/properties");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to create property");
+  }
+};
+
   
   return (
     <MainLayout
@@ -101,6 +200,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
                 type="text"
                 placeholder="Luxury Villa in Chennai"
                 className="w-full border rounded-xl px-4 py-3"
@@ -112,14 +214,14 @@ export default function AddPropertyPage() {
                 Property Type
               </label>
 
-              <select className="w-full border rounded-xl px-4 py-3">
-                <option>Apartment</option>
-                <option>Villa</option>
-                <option>Independent House</option>
-                <option>Plot / Land</option>
-                <option>Commercial Property</option>
-                <option>Office Space</option>
-                <option>Shop</option>
+              <select   name="propertyType" value={formData.propertyType} onChange={handleChange} className="w-full border rounded-xl px-4 py-3">
+                <option value="Apartment">Apartment</option>
+                <option value="Villa">Villa</option>
+                <option value="Independent House">Independent House</option>
+                <option value="Plot / Land">Plot / Land</option>
+                <option value="Commercial Property">Commercial Property</option>
+                <option value="Office Space">Office Space</option>
+                <option value="Shop">Shop</option>
               </select>
             </div>
 
@@ -128,9 +230,14 @@ export default function AddPropertyPage() {
                 Transaction Type
               </label>
 
-              <select className="w-full border rounded-xl px-4 py-3">
-                <option>For Sale</option>
-                <option>For Rent</option>
+              <select
+                name="transactionType"
+                value={formData.transactionType}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-4 py-3"
+              >
+                <option value="SALE">For Sale</option>
+                <option value="RENT">For Rent</option>
               </select>
             </div>
 
@@ -140,6 +247,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
                 type="number"
                 placeholder="Enter Property Price"
                 className="w-full border rounded-xl px-4 py-3"
@@ -153,13 +263,14 @@ export default function AddPropertyPage() {
             <label className="block mb-2 font-medium">
               Description
             </label>
-
             <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
               rows={6}
               placeholder="Describe the property..."
               className="w-full border rounded-xl px-4 py-3"
             />
-
           </div>
 
         </div>
@@ -180,6 +291,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
                 type="text"
                 placeholder="Enter complete address"
                 className="w-full border rounded-xl px-4 py-3"
@@ -204,6 +318,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
                 type="text"
                 placeholder="Chennai"
                 className="w-full border rounded-xl px-4 py-3"
@@ -290,6 +407,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="bhk"
+                value={formData.bhk}
+                onChange={handleChange}
                 type="number"
                 className="w-full border rounded-xl px-4 py-3"
               />
@@ -301,6 +421,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="bathrooms"
+                value={formData.bathrooms}
+                onChange={handleChange}
                 type="number"
                 className="w-full border rounded-xl px-4 py-3"
               />
@@ -312,6 +435,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="balconies"
+                value={formData.balconies}
+                onChange={handleChange}
                 type="number"
                 className="w-full border rounded-xl px-4 py-3"
               />
@@ -323,6 +449,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="areaSqft"
+                value={formData.areaSqft}
+                onChange={handleChange}
                 type="number"
                 className="w-full border rounded-xl px-4 py-3"
               />
@@ -334,9 +463,12 @@ export default function AddPropertyPage() {
               </label>
 
               <input
-                type="number"
-                className="w-full border rounded-xl px-4 py-3"
-              />
+                  name="floorNo"
+                  value={formData.floorNo}
+                  onChange={handleChange}
+                  type="number"
+                  className="w-full border rounded-xl px-4 py-3"
+                />
             </div>
 
             <div>
@@ -345,9 +477,12 @@ export default function AddPropertyPage() {
               </label>
 
               <input
-                type="number"
-                className="w-full border rounded-xl px-4 py-3"
-              />
+              name="totalFloors"
+              value={formData.totalFloors}
+              onChange={handleChange}
+              type="number"
+              className="w-full border rounded-xl px-4 py-3"
+            />
             </div>
 
             <div>
@@ -355,7 +490,8 @@ export default function AddPropertyPage() {
                 Furnishing Status
               </label>
 
-              <select className="w-full border rounded-xl px-4 py-3">
+              <select name="furnishingStatus" value={formData.furnishingStatus} onChange={handleChange}
+  className="w-full border rounded-xl px-4 py-3">
                 <option>Unfurnished</option>
                 <option>Semi Furnished</option>
                 <option>Fully Furnished</option>
@@ -368,6 +504,9 @@ export default function AddPropertyPage() {
               </label>
 
               <input
+                name="propertyAge"
+                value={formData.propertyAge}
+                onChange={handleChange}
                 type="number"
                 placeholder="Years"
                 className="w-full border rounded-xl px-4 py-3"
@@ -382,17 +521,22 @@ export default function AddPropertyPage() {
               Availability Status
             </label>
 
-            <select className="w-full md:w-64 border rounded-xl px-4 py-3">
-              <option>Available</option>
-              <option>Sold</option>
-              <option>Rented</option>
+            <select
+              name="propertyStatus"
+              value={formData.propertyStatus}
+              onChange={handleChange}
+              className="w-full md:w-64 border rounded-xl px-4 py-3"
+            >
+              <option value="AVAILABLE">Available</option>
+              <option value="SOLD">Sold</option>
+              <option value="RENTED">Rented</option>
             </select>
 
           </div>
 
         </div>
 
-      </div>
+      
               {/* Amenities */}
 
         <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
@@ -441,45 +585,95 @@ export default function AddPropertyPage() {
           </h3>
 
           {/* Image Upload */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-5">
+            Property Images
+          </h3>
 
-          <div className="mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <label className="block mb-3 font-medium">
-              Property Images
-            </label>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Image 1 (Cover Image)
+              </label>
+              <input
+                name="image1"
+                value={formData.image1}
+                onChange={handleChange}
+                type="url"
+                placeholder="https://example.com/property-cover.jpg"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+            </div>
 
-            <div className="border-2 border-dashed border-gray-300 rounded-2xl h-56 flex flex-col items-center justify-center text-gray-500">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Image 2
+              </label>
+              <input
+                name="image2"
+                value={formData.image2}
+                onChange={handleChange}
+                type="url"
+                placeholder="https://example.com/property-image-2.jpg"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+            </div>
 
-              <p className="font-medium">
-                Upload Property Images
-              </p>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Image 3
+              </label>
+              <input
+                name="image3"
+                value={formData.image3}
+                onChange={handleChange}
+                type="url"
+                placeholder="https://example.com/property-image-3.jpg"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+            </div>
 
-              <p className="text-sm mt-2">
-                Supports up to 20 Images
-              </p>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Image 4
+              </label>
+              <input
+                name="image4"
+                value={formData.image4}
+                onChange={handleChange}
+                type="url"
+                placeholder="https://example.com/property-image-4.jpg"
+                className="w-full border rounded-xl px-4 py-3"
+              />
+            </div>
 
-              <button className="mt-4 px-5 py-2 bg-[#1D3557] text-white rounded-xl">
-                Select Images
-              </button>
-
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-2">
+                Image 5
+              </label>
+              <input
+                name="image5"
+                value={formData.image5}
+                onChange={handleChange}
+                type="url"
+                placeholder="https://example.com/property-image-5.jpg"
+                className="w-full border rounded-xl px-4 py-3"
+              />
             </div>
 
           </div>
 
+          <p className="text-xs text-slate-500 mt-4">
+            Paste direct image URLs. Image 1 will be used as the property's cover image throughout the platform.
+          </p>
+        </div>
+        </div>
+
+
           {/* Image Preview Grid */}
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-
-            {[...Array(10)].map((_, index) => (
-              <div
-                key={index}
-                className="aspect-square rounded-xl bg-slate-100 flex items-center justify-center text-gray-400"
-              >
-                Image {index + 1}
-              </div>
-            ))}
-
-          </div>
+          
 
           {/* Video URL */}
 
@@ -490,6 +684,9 @@ export default function AddPropertyPage() {
             </label>
 
             <input
+              name="videoUrl"
+              value={formData.videoUrl}
+              onChange={handleChange}
               type="text"
               placeholder="https://youtube.com/..."
               className="w-full border rounded-xl px-4 py-3"
@@ -506,10 +703,13 @@ export default function AddPropertyPage() {
             </label>
 
             <input
-              type="text"
-              placeholder="https://..."
-              className="w-full border rounded-xl px-4 py-3"
-            />
+            name="floorPlanUrl"
+            value={formData.floorPlanUrl}
+            onChange={handleChange}
+            type="text"
+            placeholder="https://..."
+            className="w-full border rounded-xl px-4 py-3"
+          />
 
           </div>
 
@@ -522,6 +722,9 @@ export default function AddPropertyPage() {
             </label>
 
             <input
+              name="virtualTourUrl"
+              value={formData.virtualTourUrl}
+              onChange={handleChange}
               type="text"
               placeholder="https://..."
               className="w-full border rounded-xl px-4 py-3"
@@ -600,10 +803,10 @@ export default function AddPropertyPage() {
               </button>
 
               <button 
-                onClick={() => navigate("/properties")}
+                onClick={submitProperty}
                 className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95"
               >
-                Submit For Approval
+                Submit For Ap proval
               </button>
             </div>
           </div>
