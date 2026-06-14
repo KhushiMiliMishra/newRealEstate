@@ -42,20 +42,23 @@ export default function RegisterScreen({ navigation }: any) {
     const parsedMax = parseFloat(maxBudget) || 0;
 
     const success = await register({
-      fullName,
-      email,
-      phone,
-      role: "CUSTOMER",
-      minBudget: parsedMin,
-      maxBudget: parsedMax,
-      preferredLocality,
-      preferredPropertyType,
-      preferredTransactionType,
-    });
+  fullName,
+  email,
+  phone,
+  password,
+  role: "CUSTOMER",
+  minBudget: parsedMin,
+  maxBudget: parsedMax,
+  preferredLocality,
+  preferredPropertyType,
+  preferredTransactionType,
+} as any);
 
     if (success) {
-      navigation.replace("Main");
-    }
+      navigation.replace("Login");
+    } else {
+  alert("Registration failed");
+}
   };
 
   return (

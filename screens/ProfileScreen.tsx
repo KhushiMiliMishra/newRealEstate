@@ -18,19 +18,10 @@ export default function ProfileScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const { user, profile, shortlistedProperties, viewingRequests, savedSearches, logout } = useAuth();
 
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to log out of PropVault?", [
-      { text: "Cancel", style: "cancel" },
-      { 
-        text: "Logout", 
-        style: "destructive",
-        onPress: () => {
-          logout();
-          navigation.replace("Login");
-        } 
-      }
-    ]);
-  };
+  const handleLogout = async () => {
+  await logout();
+  navigation.replace("Login");
+};
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

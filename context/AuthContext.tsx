@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { loginUser, registerUser } from "../services/authService";
 
 export interface User {
+  userId: 0;
   fullName: string;
   email: string;
-  phone: string;
   role: "CUSTOMER";
+  phone?: string;
 }
 
 export interface CustomerProfile {
@@ -82,7 +84,7 @@ interface AuthContextData {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: User & CustomerProfile) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (updatedProfile: Partial<User & CustomerProfile>) => Promise<void>;
   toggleShortlist: (propertyId: string) => void;
   isShortlisted: (propertyId: string) => boolean;
@@ -104,7 +106,7 @@ const AuthContext = createContext<AuthContextData>({
   isAuthenticated: false,
   login: async () => false,
   register: async () => false,
-  logout: () => {},
+  logout: async() => {},
   updateProfile: async () => {},
   toggleShortlist: () => {},
   isShortlisted: () => false,
@@ -117,6 +119,7 @@ const AuthContext = createContext<AuthContextData>({
 
 // INITIAL MOCK DATA representing DB content
 const mockUser: User = {
+  userId:1,
   fullName: "John Anderson",
   email: "john@example.com",
   phone: "+91 9876543210",
@@ -332,13 +335,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(JSON.parse(storedProfile));
           setIsAuthenticated(true);
         } else {
-          // Pre-populate with our gorgeous mock user for preview convenience!
-          setUser(mockUser);
-          setProfile(mockProfile);
-          setIsAuthenticated(true);
-          await AsyncStorage.setItem("app-user", JSON.stringify(mockUser));
-          await AsyncStorage.setItem("app-profile", JSON.stringify(mockProfile));
-        }
+                  setUser(null);
+                  setProfile(null);
+                  setIsAuthenticated(false);
+                }
 
         setShortlistedProperties(storedShortlisted ? JSON.parse(storedShortlisted) : ["2"]); // villa default shortlisted
         setSavedSearches(storedSavedSearches ? JSON.parse(storedSavedSearches) : mockSavedSearches);
@@ -353,59 +353,84 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Accept any password, check email
-    if (email) {
-      const loggedUser: User = {
-        fullName: user?.fullName || "John Anderson",
-        email: email,
-        phone: user?.phone || "+91 9876543210",
-        role: "CUSTOMER",
-      };
-      const loggedProfile: CustomerProfile = profile || mockProfile;
-      setUser(loggedUser);
-      setProfile(loggedProfile);
-      setIsAuthenticated(true);
-      await AsyncStorage.setItem("app-user", JSON.stringify(loggedUser));
-      await AsyncStorage.setItem("app-profile", JSON.stringify(loggedProfile));
-      return true;
+  const login = async (
+  email: string,
+  password: string
+): Promise<boolean> => {
+  try {
+    const response = await loginUser(email, password);
+
+    if (!response) {
+      return false;
     }
-    return false;
-  };
 
-  const register = async (userData: User & CustomerProfile): Promise<boolean> => {
-    const newUser: User = {
-      fullName: userData.fullName,
-      email: userData.email,
-      phone: userData.phone,
-      role: "CUSTOMER",
-    };
-    const newProfile: CustomerProfile = {
-      minBudget: userData.minBudget,
-      maxBudget: userData.maxBudget,
-      preferredLocality: userData.preferredLocality,
-      preferredPropertyType: userData.preferredPropertyType,
-      preferredTransactionType: userData.preferredTransactionType,
+    const userData: User = {
+      userId: response.userId,
+      fullName: response.fullName,
+      email: response.email,
+      role: response.role || "CUSTOMER",
+      phone: response.phone,
     };
 
-    setUser(newUser);
-    setProfile(newProfile);
+    setUser(userData);
     setIsAuthenticated(true);
-    await AsyncStorage.setItem("app-user", JSON.stringify(newUser));
-    await AsyncStorage.setItem("app-profile", JSON.stringify(newProfile));
-    return true;
-  };
 
+    await AsyncStorage.setItem(
+      "app-user",
+      JSON.stringify(userData)
+    );
+
+    return true;
+  } catch (error) {
+    console.log("Login Error:", error);
+    return false;
+  }
+};
+
+  const register = async (
+  userData: User & CustomerProfile
+): Promise<boolean> => {
+  try {
+    const response = await registerUser(userData);
+
+    console.log("Register Response:", response);
+
+    return true;
+  } catch (error) {
+    console.log("Register Error:", error);
+    return false;
+  }
+};
+    
   const logout = async () => {
+  console.log("LOGOUT CLICKED");
+
+  try {
     setUser(null);
     setProfile(null);
     setIsAuthenticated(false);
-    await AsyncStorage.removeItem("app-user");
-    await AsyncStorage.removeItem("app-profile");
-  };
+
+    await AsyncStorage.multiRemove([
+      "app-user",
+      "app-profile",
+    ]);
+
+    console.log("LOGOUT SUCCESS");
+  } catch (error) {
+    console.log("LOGOUT ERROR:", error);
+  }
+};
 
   const updateProfile = async (updatedData: Partial<User & CustomerProfile>) => {
-    const nextUser = user ? { ...user } : { fullName: "", email: "", phone: "", role: "CUSTOMER" as const };
+    const nextUser = user
+  ? { ...user }
+  : {
+      userId: 0,
+      fullName: "",
+      email: "",
+      phone: "",
+      role: "CUSTOMER" as const,
+    };
     const nextProfile = profile ? { ...profile } : { minBudget: 0, maxBudget: 0, preferredLocality: "", preferredPropertyType: "", preferredTransactionType: "" };
 
     if (updatedData.fullName !== undefined) nextUser.fullName = updatedData.fullName;

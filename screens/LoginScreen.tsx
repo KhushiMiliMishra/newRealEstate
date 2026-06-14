@@ -16,21 +16,29 @@ import { useAuth } from "../context/AuthContext";
 export default function LoginScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const { login } = useAuth();
-  const [email, setEmail] = useState("john@example.com");
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all credentials.");
-      return;
-    }
-    const success = await login(email, password);
-    if (success) {
-      navigation.replace("Main");
-    } else {
-      Alert.alert("Error", "Invalid login credentials.");
-    }
-  };
+  console.log("Login button clicked");
+
+  if (!email || !password) {
+    Alert.alert("Error", "Please fill in all credentials.");
+    return;
+  }
+
+  console.log("Calling login...", email);
+
+  const success = await login(email, password);
+
+  console.log("Login result:", success);
+
+  if (success) {
+    navigation.replace("Main");
+  } else {
+    Alert.alert("Error", "Invalid login credentials.");
+  }
+};
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
