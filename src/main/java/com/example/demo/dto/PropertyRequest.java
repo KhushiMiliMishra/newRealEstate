@@ -14,7 +14,7 @@ public class PropertyRequest {
     private String description;
 
     private String propertyType;
-    private String transactionType;
+    private String transactionType; 
 
     private BigDecimal price;
 
