@@ -11,8 +11,19 @@ public interface PropertyService {
 
     List<Property> getPropertiesByAgent(Long agentId);
     List<Property> getAllProperties();
+    List<Property> searchProperties(
+        String city,
+        Integer bhk,
+        String propertyType,
+        String transactionType
+);
+List<Property> searchByPriceRange(
+        Double minPrice,
+        Double maxPrice);
 
     Property getPropertyById(Long propertyId);
     Property approveProperty(Long propertyId);
     Property rejectProperty(Long propertyId);
+    Property updateProperty(Long id, PropertyRequest request);
+    void deleteProperty(Long id);
 }

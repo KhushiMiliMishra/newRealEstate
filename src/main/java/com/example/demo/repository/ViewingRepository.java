@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ViewingRepository
         extends JpaRepository<Viewing, Long> {
+                void deleteByPropertyId(Long propertyId);
 }

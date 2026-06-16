@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/properties")
-@CrossOrigin(origins = "")
+@CrossOrigin(origins = "*")
 public class PropertyController {
 
     @Autowired
@@ -30,10 +30,31 @@ public class PropertyController {
 
         return propertyService.getPropertiesByAgent(agentId);
     }
+
     @GetMapping
     public List<Property> getAllProperties() {
         return propertyService.getAllProperties();
     }
+
+    // SEARCH API
+@GetMapping("/search")
+public List<Property> searchProperties(
+
+        @RequestParam(required = false) String city,
+
+        @RequestParam(required = false) Integer bhk,
+
+        @RequestParam(required = false) String propertyType,
+
+        @RequestParam(required = false) String transactionType) {
+
+    return propertyService.searchProperties(
+            city,
+            bhk,
+            propertyType,
+            transactionType);
+}
+
 
     @GetMapping("/{id}")
     public Property getPropertyById(
@@ -41,6 +62,7 @@ public class PropertyController {
 
         return propertyService.getPropertyById(id);
     }
+
     @PutMapping("/{id}/approve")
     public Property approveProperty(
             @PathVariable Long id) {
@@ -54,4 +76,30 @@ public class PropertyController {
 
         return propertyService.rejectProperty(id);
     }
+
+    @PutMapping("/{id}")
+    public Property updateProperty(
+            @PathVariable Long id,
+            @RequestBody PropertyRequest request) {
+
+        return propertyService.updateProperty(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteProperty(
+            @PathVariable Long id) {
+
+        propertyService.deleteProperty(id);
+
+        return "Property Deleted Successfully";
+    }
+    @GetMapping("/search/price")
+public List<Property> searchByPrice(
+        @RequestParam Double minPrice,
+        @RequestParam Double maxPrice) {
+
+    return propertyService.searchByPriceRange(
+            minPrice,
+            maxPrice);
+}
 }

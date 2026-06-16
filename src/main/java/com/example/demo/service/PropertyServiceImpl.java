@@ -7,6 +7,7 @@ import com.example.demo.repository.PropertyAddressRepository;
 import com.example.demo.repository.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.demo.repository.RecentlyViewedRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,8 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Autowired
     private PropertyAddressRepository propertyAddressRepository;
+    @Autowired
+private RecentlyViewedRepository recentlyViewedRepository;
 
     @Override
 public Property createProperty(PropertyRequest request) {
@@ -125,5 +128,92 @@ public Property createProperty(PropertyRequest request) {
         property.setListingStatus("REJECTED");
 
         return propertyRepository.save(property);
+}
+@Override
+public Property updateProperty(
+        Long id,
+        PropertyRequest request) {
+
+    Property property =
+            propertyRepository.findById(id)
+            .orElseThrow(() ->
+                    new RuntimeException("Property not found"));
+
+    property.setTitle(request.getTitle());
+    property.setDescription(request.getDescription());
+    property.setPrice(request.getPrice());
+    property.setBhk(request.getBhk());
+    property.setBathrooms(request.getBathrooms());
+    property.setBalconies(request.getBalconies());
+    property.setAreaSqft(request.getAreaSqft());
+
+    property.setPropertyType(
+            request.getPropertyType());
+
+    property.setTransactionType(
+            request.getTransactionType());
+
+    property.setFurnishingStatus(
+            request.getFurnishingStatus());
+
+    property.setPropertyAge(
+            request.getPropertyAge());
+
+    property.setAddress(
+            request.getAddressLine());
+
+    property.setCity(
+            request.getCity());
+
+    return propertyRepository.save(property);
+}
+
+@Override
+public void deleteProperty(Long id) {
+
+    recentlyViewedRepository.deleteByPropertyId(id);
+
+    PropertyAddress address =
+            propertyAddressRepository.findByPropertyId(id);
+
+    if (address != null) {
+        propertyAddressRepository.delete(address);
+    }
+
+    propertyRepository.deleteById(id);
+}
+@Override
+public List<Property> searchProperties(
+        String city,
+        Integer bhk,
+        String propertyType,
+        String transactionType) {
+
+    if (city != null) {
+        return propertyRepository.findByCityIgnoreCase(city);
+    }
+
+    if (bhk != null) {
+        return propertyRepository.findByBhk(bhk);
+    }
+
+    if (propertyType != null) {
+        return propertyRepository.findByPropertyTypeIgnoreCase(propertyType);
+    }
+
+    if (transactionType != null) {
+        return propertyRepository.findByTransactionTypeIgnoreCase(transactionType);
+    }
+
+    return propertyRepository.findAll();
+}
+@Override
+public List<Property> searchByPriceRange(
+        Double minPrice,
+        Double maxPrice) {
+
+    return propertyRepository.findByPriceBetween(
+            minPrice,
+            maxPrice);
 }
 }
