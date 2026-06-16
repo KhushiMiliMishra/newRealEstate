@@ -41,4 +41,17 @@ public class PropertyController {
 
         return propertyService.getPropertyById(id);
     }
+    @PutMapping("/{id}/approve")
+    public Property approveProperty(
+            @PathVariable Long id) {
+
+        return propertyService.approveProperty(id);
+    }
+
+    @PutMapping("/{id}/reject")
+    public Property rejectProperty(
+            @PathVariable Long id) {
+
+        return propertyService.rejectProperty(id);
+    }
 }

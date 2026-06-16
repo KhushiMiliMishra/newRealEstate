@@ -13,4 +13,6 @@ public interface PropertyService {
     List<Property> getAllProperties();
 
     Property getPropertyById(Long propertyId);
+    Property approveProperty(Long propertyId);
+    Property rejectProperty(Long propertyId);
 }

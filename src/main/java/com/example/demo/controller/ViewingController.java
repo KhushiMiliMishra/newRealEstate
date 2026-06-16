@@ -30,4 +30,18 @@ public class ViewingController {
     public List<Viewing> getAllViewings() {
         return viewingService.getAllViewings();
     }
+
+    @PutMapping("/{id}/approve")
+    public Viewing approveViewing(
+            @PathVariable Long id) {
+
+        return viewingService.approveViewing(id);
+    }
+
+    @PutMapping("/{id}/reject")
+    public Viewing rejectViewing(
+            @PathVariable Long id) {
+
+        return viewingService.rejectViewing(id);
+    }
 }

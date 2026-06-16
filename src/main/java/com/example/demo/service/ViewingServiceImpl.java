@@ -42,4 +42,29 @@ public class ViewingServiceImpl implements ViewingService {
     public List<Viewing> getAllViewings() {
         return viewingRepository.findAll();
     }
+    @Override
+    public Viewing approveViewing(Long id) {
+
+        Viewing viewing =
+                viewingRepository
+                .findById(id)
+                .orElseThrow();
+
+        viewing.setStatus("APPROVED");
+
+        return viewingRepository.save(viewing);
+    }
+
+    @Override
+    public Viewing rejectViewing(Long id) {
+
+        Viewing viewing =
+                viewingRepository
+                        .findById(id)
+                        .orElseThrow();
+
+        viewing.setStatus("REJECTED");
+
+        return viewingRepository.save(viewing);
+    }
 }

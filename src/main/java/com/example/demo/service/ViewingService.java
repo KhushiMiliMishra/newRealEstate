@@ -10,4 +10,6 @@ public interface ViewingService {
     Viewing createViewing(ViewingRequest request);
 
     List<Viewing> getAllViewings();
+    Viewing approveViewing(Long id);
+    Viewing rejectViewing(Long id);
 }

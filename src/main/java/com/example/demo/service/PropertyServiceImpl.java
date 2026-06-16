@@ -101,4 +101,29 @@ public Property createProperty(PropertyRequest request) {
         return propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
     }
+    @Override
+    public Property approveProperty(Long propertyId) {
+
+        Property property =
+                propertyRepository.findById(propertyId)
+                .orElseThrow(() ->
+                        new RuntimeException("Property not found"));
+
+        property.setListingStatus("APPROVED");
+
+        return propertyRepository.save(property);
+    }
+
+    @Override
+    public Property rejectProperty(Long propertyId) {
+
+        Property property =
+                propertyRepository.findById(propertyId)
+                .orElseThrow(() ->
+                        new RuntimeException("Property not found"));
+
+        property.setListingStatus("REJECTED");
+
+        return propertyRepository.save(property);
+}
 }
