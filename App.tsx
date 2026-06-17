@@ -4,14 +4,17 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import RootNavigator from "./src/navigation/RootNavigator";
 import { ThemeProvider } from "./src/theme/ThemeContext";
+import { AuthProvider } from "./src/context/AuthContext";
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
+        <AuthProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
