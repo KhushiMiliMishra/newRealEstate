@@ -23,7 +23,7 @@ import InquiryManagementPageAdmin from "../admin/InquiryManagementPage";
 import ListingModerationPage from "../admin/ListingModerationPage";
 import PlatformAnalyticsPage from "../admin/PlatformAnalyticsPage";
 import AdminProfilePage from "../admin/AdminProfilePage";
-
+import PropertyDetailsPage from "../agent/PropertyDetailsPage";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -54,6 +54,11 @@ export default function AppRoutes() {
       <Route path="/admin/moderation" element={<ListingModerationPage />} />
       <Route path="/admin/analytics" element={<PlatformAnalyticsPage />} />
       <Route path="/admin/profile" element={<AdminProfilePage />} />
+
+      <Route path="/properties" element={<PropertyListPage />} />
+      <Route path="/properties/new" element={<AddPropertyPage />} />
+      <Route path="/properties/:id" element={<PropertyDetailsPage />} />
+      <Route path="/properties/edit/:id" element={<EditPropertyPage />} />
     </Routes>
   );
 }
