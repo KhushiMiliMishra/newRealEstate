@@ -18,6 +18,7 @@ com\example\demo\service\RecentlyViewedServiceImpl.class
 com\example\demo\entity\PropertyAddress.class
 com\example\demo\entity\ShortlistedProperty.class
 com\example\demo\repository\PropertyRepository.class
+com\example\demo\dto\CustomerProfileResponse.class
 com\example\demo\config\SecurityConfig.class
 com\example\demo\controller\AgentController.class
 com\example\demo\dto\AgentRegistrationRequest.class
@@ -39,6 +40,7 @@ com\example\demo\dto\UserRequest.class
 com\example\demo\repository\PropertyAddressRepository.class
 com\example\demo\service\PropertyService.class
 com\example\demo\controller\ShortlistedPropertyController.class
+com\example\demo\controller\CustomerProfileController.class
 com\example\demo\config\CorsConfig$1.class
 com\example\demo\entity\RecentlyViewed.class
 com\example\demo\controller\DashboardController.class

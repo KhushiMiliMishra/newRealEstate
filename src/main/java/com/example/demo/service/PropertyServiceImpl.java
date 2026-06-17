@@ -8,6 +8,8 @@ import com.example.demo.repository.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.repository.RecentlyViewedRepository;
+import com.example.demo.entity.PropertyAmenity;
+import com.example.demo.repository.PropertyAmenityRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,8 @@ public class PropertyServiceImpl implements PropertyService {
     private PropertyAddressRepository propertyAddressRepository;
     @Autowired
 private RecentlyViewedRepository recentlyViewedRepository;
+@Autowired
+private PropertyAmenityRepository propertyAmenityRepository;
 
     @Override
 public Property createProperty(PropertyRequest request) {
@@ -85,9 +89,27 @@ public Property createProperty(PropertyRequest request) {
     address.setLatitude(request.getLatitude());
     address.setLongitude(request.getLongitude());
 
-    propertyAddressRepository.save(address);
+   propertyAddressRepository.save(address);
 
-    return savedProperty;
+if (request.getAmenityIds() != null) {
+
+    for (Long amenityId : request.getAmenityIds()) {
+
+        PropertyAmenity amenity =
+                new PropertyAmenity();
+
+        amenity.setPropertyId(
+                savedProperty.getPropertyId());
+
+        amenity.setAmenityId(
+                amenityId);
+
+        propertyAmenityRepository.save(
+                amenity);
+    }
+}
+
+return savedProperty;
 }
 
     @Override
@@ -171,8 +193,13 @@ public Property updateProperty(
 @Override
 public void deleteProperty(Long id) {
 
+    // Delete recently viewed records
     recentlyViewedRepository.deleteByPropertyId(id);
 
+    // Delete amenity mappings
+    propertyAmenityRepository.deleteByPropertyId(id);
+
+    // Delete property address
     PropertyAddress address =
             propertyAddressRepository.findByPropertyId(id);
 
@@ -180,6 +207,7 @@ public void deleteProperty(Long id) {
         propertyAddressRepository.delete(address);
     }
 
+    // Finally delete property
     propertyRepository.deleteById(id);
 }
 @Override

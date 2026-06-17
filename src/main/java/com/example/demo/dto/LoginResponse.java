@@ -6,21 +6,28 @@ public class LoginResponse {
     private String fullName;
     private String email;
     private String role;
+    private String phone;
 
     public LoginResponse(
             Long userId,
             String fullName,
             String email,
-            String role
+            String role,
+            String phone
     ) {
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
         this.role = role;
+        this.phone = phone;
     }
 
     public Long getUserId() {
         return userId;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public String getFullName() {

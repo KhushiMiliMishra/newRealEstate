@@ -127,7 +127,8 @@ customerProfileRepository.save(profile);
                     user.getUserId(),
                     user.getFullName(),
                     user.getEmail(),
-                    user.getRole()
+                    user.getRole(),
+                    user.getPhone()
             );
         }
 

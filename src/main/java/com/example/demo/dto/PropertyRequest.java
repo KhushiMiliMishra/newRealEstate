@@ -43,6 +43,8 @@ public class PropertyRequest {
     private BigDecimal latitude;
     private BigDecimal longitude;
 
+    private List<Long> amenityIds;
+
     private String image1;
     private String image2;
     private String image3;
@@ -52,4 +54,5 @@ public class PropertyRequest {
     private String videoUrl;
     private String floorPlanUrl;
     private String virtualTourUrl;
+    
 }
