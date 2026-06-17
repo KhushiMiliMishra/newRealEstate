@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/agents")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class AgentController {
 
 @Autowired
@@ -28,7 +28,7 @@ private PasswordEncoder passwordEncoder;
 public String registerAgent(
         @RequestBody AgentRegistrationRequest request
 ) {
-
+        System.out.println("Agent registration called");
     if (
             userRepository
                     .findByEmail(request.getEmail())
