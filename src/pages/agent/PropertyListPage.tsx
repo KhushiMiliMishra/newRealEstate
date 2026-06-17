@@ -1,4 +1,5 @@
 import MainLayout from "../../components/layout/MainLayout";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -10,8 +11,9 @@ import {
   Home,
   MessageSquare,
 } from "lucide-react";
+import { deleteProperty } from "../../services/propertyService";
 
-const properties = [
+const initialProperties = [
   {
     id: 1,
     title: "Luxury Villa - Hyderabad",
@@ -52,6 +54,25 @@ const properties = [
 
 export default function PropertyListPage() {
   const navigate = useNavigate();
+  const [properties, setProperties] = useState<any[]>([]);
+
+  const getAllProperties = async () => {
+    return initialProperties;
+  };
+
+  const loadProperties = async () => {
+    try {
+      const data = await getAllProperties();
+      console.log(data);
+      setProperties(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadProperties();
+  }, []);
 
   return (
     <MainLayout role="agent" title="My Properties">
@@ -149,7 +170,7 @@ export default function PropertyListPage() {
                             {property.title}
                           </h4>
                           <p className="text-[10px] text-slate-400 mt-0.5">
-                            {property.type} &bull; {property.location}
+                            {property.propertyType} • {property.city}
                           </p>
                         </div>
                       </div>
@@ -157,7 +178,7 @@ export default function PropertyListPage() {
 
                     {/* Price */}
                     <td className="px-6 py-4 font-semibold text-slate-700">
-                      {property.price}
+                      ₹{property.price}
                     </td>
 
                     {/* Views */}
@@ -191,7 +212,7 @@ export default function PropertyListPage() {
                             : "bg-slate-50 text-slate-500 border-slate-100"
                         }`}
                       >
-                        {property.status}
+                        {property.listingStatus}
                       </span>
                     </td>
 
@@ -200,7 +221,7 @@ export default function PropertyListPage() {
                       <div className="flex gap-1.5 justify-end">
                         {/* View */}
                         <button
-                          onClick={() => navigate("/properties")}
+                          onClick={() => navigate(`/properties/${property.propertyId}`)}
                           className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors"
                           title="View Details"
                         >
@@ -209,7 +230,7 @@ export default function PropertyListPage() {
 
                         {/* Edit */}
                         <button
-                          onClick={() => navigate(`/properties/edit/${property.id}`)}
+                          onClick={() => navigate(`/properties/edit/${property.propertyId}`)}
                           className="p-1.5 rounded-lg border border-blue-100 bg-blue-50/20 hover:bg-blue-50 text-blue-600 transition-colors"
                           title="Edit Listing"
                         >
@@ -236,8 +257,14 @@ export default function PropertyListPage() {
 
                         {/* Delete */}
                         <button
-                          className="p-1.5 rounded-lg border border-rose-100 bg-rose-50/20 hover:bg-rose-50 text-rose-600 transition-colors"
-                          title="Delete Listing"
+                          onClick={async () => {
+                            if (!window.confirm("Delete property?")) return;
+
+                            await deleteProperty(property.propertyId);
+
+                            loadProperties();
+                          }}
+                          className="p-1.5 rounded-lg border border-rose-100 bg-rose-50/20 hover:bg-rose-50 text-rose-600"
                         >
                           <Trash2 size={14} />
                         </button>

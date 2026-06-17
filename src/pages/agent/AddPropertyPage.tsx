@@ -57,7 +57,7 @@ const submitProperty = async () => {
 
   price: Number(formData.price),
 
-  address: formData.address,
+  addressLine: formData.address,
   city: formData.city,
 
   bhk: Number(formData.bhk),
@@ -91,15 +91,21 @@ const submitProperty = async () => {
 
   virtualTourUrl: formData.virtualTourUrl,
 };
-
-    await api.post("/properties", payload);
-
+    console.log("PAYLOAD:", payload);
+    const response = await api.post("/properties", payload);
+    console.log("Property Created:", response.data);
     alert("Property Created Successfully");
     navigate("/properties");
-  } catch (err) {
-    console.error(err);
-    alert("Failed to create property");
-  }
+  } catch (err: any) {
+  console.error("FULL ERROR:", err);
+  console.error("RESPONSE:", err.response?.data);
+
+  alert(
+    err.response?.data?.message ||
+    JSON.stringify(err.response?.data) ||
+    "Failed to create property"
+  );
+}
 };
 
   

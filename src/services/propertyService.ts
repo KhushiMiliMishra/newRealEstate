@@ -1,9 +1,11 @@
-import API from "./api";
+import api from "./api";
 
-export const createProperty = async (data: any) => {
-  return API.post("/properties", data);
+export const getAllProperties = async () => {
+  const response = await api.get("/properties");
+  return response.data;
 };
 
-export const getPropertiesByAgent = async (agentId: number) => {
-  return API.get(`/properties/agent/${agentId}`);
+export const deleteProperty = async (id: number) => {
+  const response = await api.delete(`/properties/${id}`);
+  return response.data;
 };
