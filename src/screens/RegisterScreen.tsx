@@ -41,9 +41,10 @@ export default function RegisterScreen({ navigation }: any) {
     const parsedMin = parseFloat(minBudget) || 0;
     const parsedMax = parseFloat(maxBudget) || 0;
 
-    const success = await register({
+    const registrationData = {
       fullName,
       email,
+      password,
       phone,
       role: "CUSTOMER",
       minBudget: parsedMin,
@@ -51,10 +52,13 @@ export default function RegisterScreen({ navigation }: any) {
       preferredLocality,
       preferredPropertyType,
       preferredTransactionType,
-    });
+    };
+
+    const success = await register(registrationData as any);
 
     if (success) {
-      navigation.replace("Main");
+      alert("Registration successful! Please login.");
+      navigation.replace("Login");
     }
   };
 

@@ -1,36 +1,68 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-
+import { useTheme } from "../theme/ThemeContext";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+// import { useEffect } from "react";
+WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const { login } = useAuth();
-  const [email, setEmail] = useState("john@example.com");
-  const [password, setPassword] = useState("password");
+  console.log("LOGIN FUNCTION:", login);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [request, response, promptAsync] =
+  Google.useAuthRequest({
+    androidClientId:
+      "503981894093-ohdfs905ulge7qb8k088dtl0t2nnvsff.apps.googleusercontent.com",
+      webClientId:
+      "503981894093-ohdfs905ulge7qb8k088dtl0t2nnvsff.apps.googleusercontent.com",
+  });
 
+  useEffect(() => {
+  if (response?.type === "success") {
+    console.log("GOOGLE LOGIN SUCCESS");
+    console.log(response);
+
+    navigation.replace("Main");
+  }
+}, [response]);
+const handleGoogleLogin = async () => {
+  try {
+    await promptAsync();
+  } catch (error) {
+    console.log("GOOGLE LOGIN ERROR:", error);
+  }
+};
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all credentials.");
-      return;
-    }
-    const success = await login(email, password);
-    if (success) {
-      navigation.replace("Main");
-    } else {
-      Alert.alert("Error", "Invalid login credentials.");
-    }
-  };
+  console.log("LOGIN BUTTON CLICKED");
+  console.log("AUTH LOGIN CALLED");
+  if (!email || !password) {
+    Alert.alert("Error", "Please fill in all credentials.");
+    return;
+  }
+
+  const success = await login(email, password);
+
+  console.log("LOGIN RESULT:", success);
+
+  if (success) {
+    navigation.replace("Main");
+  } else {
+    Alert.alert("Error", "Invalid login credentials.");
+  }
+};
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -102,14 +134,14 @@ export default function LoginScreen({ navigation }: any) {
           {/* GOOGLE */}
           <TouchableOpacity
             style={[styles.socialButton, { backgroundColor: isDark ? "#0F172A" : "#F8F9FA", borderColor: colors.border }]}
-            onPress={() => navigation.replace("Main")}
+            onPress={handleGoogleLogin}
           >
             <Text style={[styles.socialText, { color: colors.text }]}>
               Continue with Google
             </Text>
           </TouchableOpacity>
 
-          {/* APPLE */}
+          {/* APPLE
           <TouchableOpacity
             style={[styles.socialButton, { backgroundColor: isDark ? "#0F172A" : "#F8F9FA", borderColor: colors.border }]}
             onPress={() => navigation.replace("Main")}
@@ -117,7 +149,7 @@ export default function LoginScreen({ navigation }: any) {
             <Text style={[styles.socialText, { color: colors.text }]}>
               Continue with Apple
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           {/* REGISTER */}
           <TouchableOpacity

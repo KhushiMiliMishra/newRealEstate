@@ -1,36 +1,61 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  Image,
-  StatusBar,
-  Alert,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../theme/ThemeContext";
+import {
+  Alert,
+  Image,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../theme/ThemeContext";
 
 export default function ProfileScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const { user, profile, shortlistedProperties, viewingRequests, savedSearches, logout } = useAuth();
 
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to log out of PropVault?", [
+// import { Alert, Platform } from "react-native";
+
+const handleLogout = async () => {
+  if (Platform.OS === "web") {
+    const confirmed = window.confirm(
+      "Are you sure you want to log out of PropVault?"
+    );
+
+    if (!confirmed) return;
+
+    await logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
+    return;
+  }
+
+  Alert.alert(
+    "Logout",
+    "Are you sure you want to log out of PropVault?",
+    [
       { text: "Cancel", style: "cancel" },
-      { 
-        text: "Logout", 
+      {
+        text: "Logout",
         style: "destructive",
-        onPress: () => {
-          logout();
-          navigation.replace("Login");
-        } 
-      }
-    ]);
-  };
+        onPress: async () => {
+          await logout();
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
+        },
+      },
+    ]
+  );
+};
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -278,7 +303,7 @@ const styles = StyleSheet.create({
   },
 
   coverOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.15)",
   },
 
