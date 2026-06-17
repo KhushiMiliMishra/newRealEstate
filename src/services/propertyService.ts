@@ -9,3 +9,8 @@ export const deleteProperty = async (id: number) => {
   const response = await api.delete(`/properties/${id}`);
   return response.data;
 };
+
+export const getPropertyById = async (id: number) => {
+  const response = await api.get(`/properties/${id}`);
+  return response.data;
+};

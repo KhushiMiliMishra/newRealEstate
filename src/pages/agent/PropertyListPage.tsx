@@ -11,7 +11,10 @@ import {
   Home,
   MessageSquare,
 } from "lucide-react";
-import { deleteProperty } from "../../services/propertyService";
+import {
+  getAllProperties,
+  deleteProperty,
+} from "../../services/propertyService";
 
 const initialProperties = [
   {
@@ -56,9 +59,9 @@ export default function PropertyListPage() {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<any[]>([]);
 
-  const getAllProperties = async () => {
-    return initialProperties;
-  };
+  // const getAllProperties = async () => {
+  //   return initialProperties;
+  // };
 
   const loadProperties = async () => {
     try {
@@ -158,7 +161,7 @@ export default function PropertyListPage() {
 
               <tbody className="divide-y divide-slate-100">
                 {properties.map((property) => (
-                  <tr key={property.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={property.propertyId} className="hover:bg-slate-50/50 transition-colors">
                     {/* Property Details */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -183,31 +186,31 @@ export default function PropertyListPage() {
 
                     {/* Views */}
                     <td className="px-6 py-4 text-slate-500 font-medium">
-                      {property.views.toLocaleString()}
+                      -
                     </td>
 
                     {/* Inquiries */}
                     <td className="px-6 py-4 text-slate-500 font-medium">
-                      {property.inquiries}
+                      -
                     </td>
 
                     {/* Shortlisted */}
                     <td className="px-6 py-4 text-slate-500 font-medium">
-                      {property.shortlisted}
+                      -
                     </td>
 
                     {/* Updated */}
                     <td className="px-6 py-4 text-slate-400">
-                      {property.updated}
+                      {new Date(property.createdAt).toLocaleDateString()}
                     </td>
 
                     {/* Status badge */}
                     <td className="px-6 py-4">
                       <span
                         className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
-                          property.status === "Active"
+                          property.listingStatus === "APPROVED"
                             ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                            : property.status === "Pending Approval"
+                            : property.listingStatus === "Pending Approval"
                             ? "bg-amber-50 text-amber-600 border-amber-100"
                             : "bg-slate-50 text-slate-500 border-slate-100"
                         }`}
