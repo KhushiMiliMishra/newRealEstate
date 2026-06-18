@@ -17,6 +17,8 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo.dto.CustomerManagementResponse;
+import com.example.demo.dto.CustomerStatsResponse;
 
 @RestController
 @RequestMapping("/api/auth")

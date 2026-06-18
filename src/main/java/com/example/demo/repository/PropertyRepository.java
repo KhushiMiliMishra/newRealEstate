@@ -20,6 +20,10 @@ public interface PropertyRepository
 
     List<Property> findByTransactionTypeIgnoreCase(String transactionType);
 
+    long countByListingStatus(String listingStatus);
+
+    List<Property> findByListingStatus(String listingStatus);
+
     List<Property> findByPriceBetween(
             Double minPrice,
             Double maxPrice);

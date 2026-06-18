@@ -26,6 +26,8 @@ public class User {
 
     @Column(name = "phone")
     private String phone;
+    @Column(name = "status")
+    private String status;
 
     public User() {
     }
@@ -82,4 +84,11 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+    public String getStatus() {
+    return status;
+}
+
+public void setStatus(String status) {
+    this.status = status;
+}
 }

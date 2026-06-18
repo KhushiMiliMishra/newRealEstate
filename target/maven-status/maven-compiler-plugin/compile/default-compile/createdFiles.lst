@@ -32,6 +32,9 @@ com\example\demo\entity\Viewing.class
 com\example\demo\dto\ViewingRequestDto.class
 com\example\demo\config\JwtUtil.class
 com\example\demo\controller\ViewingController.class
+com\example\demo\dto\AgentResponse.class
+com\example\demo\service\AgentServiceImpl.class
+com\example\demo\dto\ListingModerationStats.class
 com\example\demo\service\ViewingService.class
 com\example\demo\dto\ViewingRequest.class
 com\example\demo\DemoApplication.class
@@ -47,9 +50,13 @@ com\example\demo\dto\UserRequest.class
 com\example\demo\repository\PropertyAddressRepository.class
 com\example\demo\service\PropertyService.class
 com\example\demo\controller\ShortlistedPropertyController.class
+com\example\demo\service\AgentService.class
+com\example\demo\dto\AgentStats.class
+com\example\demo\dto\CustomerManagementResponse.class
 com\example\demo\controller\CustomerProfileController.class
 com\example\demo\config\CorsConfig$1.class
 com\example\demo\entity\RecentlyViewed.class
+com\example\demo\dto\AgentRequest.class
 com\example\demo\controller\DashboardController.class
 com\example\demo\entity\ViewingRequestEntity.class
 com\example\demo\repository\CustomerProfileRepository.class
@@ -57,4 +64,5 @@ com\example\demo\entity\Property.class
 com\example\demo\service\ShortlistedPropertyService.class
 com\example\demo\repository\AgentProfileRepository.class
 com\example\demo\dto\PropertyRequest.class
+com\example\demo\dto\CustomerStatsResponse.class
 com\example\demo\service\ViewingRequestEntityService.class

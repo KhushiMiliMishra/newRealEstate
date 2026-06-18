@@ -83,6 +83,13 @@ public String registerAgent(
     profile.setOfficeAddress(
             request.getOfficeAddress()
     );
+profile.setVerificationStatus("PENDING");
+
+profile.setAverageRating(0.0);
+
+profile.setTotalReviews(0);
+
+agentProfileRepository.save(profile);
 
     profile.setVerificationStatus(
             "PENDING"
