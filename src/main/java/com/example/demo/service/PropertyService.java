@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.PropertyRequest;
 import com.example.demo.entity.Property;
+import com.example.demo.dto.PropertyResponseDTO;
 
 import java.util.List;
 
@@ -26,4 +27,5 @@ List<Property> searchByPriceRange(
     Property rejectProperty(Long propertyId);
     Property updateProperty(Long id, PropertyRequest request);
     void deleteProperty(Long id);
+    PropertyResponseDTO getPropertyDetails(Long propertyId);
 }

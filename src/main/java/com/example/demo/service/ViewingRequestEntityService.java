@@ -11,6 +11,8 @@ public interface ViewingRequestEntityService {
             ViewingRequestDto request);
 
     List<ViewingRequestEntity> getAllRequests();
+     List<ViewingRequestEntity>
+    getCustomerRequests(Long customerId);
 
     ViewingRequestEntity approveRequest(Long id);
 

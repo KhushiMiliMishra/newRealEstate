@@ -79,4 +79,11 @@ public class ViewingRequestEntityServiceImpl
 
         return repository.save(request);
     }
+    @Override
+public List<ViewingRequestEntity>
+getCustomerRequests(Long customerId) {
+
+    return repository.findByCustomerId(
+            customerId);
+}
 }

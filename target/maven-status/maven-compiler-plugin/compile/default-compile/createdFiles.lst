@@ -3,6 +3,7 @@ com\example\demo\service\RecentlyViewedService.class
 com\example\demo\entity\Agent.class
 com\example\demo\repository\AgentRepository.class
 com\example\demo\repository\PropertyAmenityRepository.class
+com\example\demo\dto\PropertyResponseDTO.class
 com\example\demo\service\PropertyServiceImpl.class
 com\example\demo\repository\ViewingRepository.class
 com\example\demo\entity\AgentProfile.class
@@ -14,6 +15,7 @@ com\example\demo\controller\AuthController.class
 com\example\demo\entity\CustomerProfile.class
 com\example\demo\dto\LoginResponse.class
 com\example\demo\dto\ProfileUpdateRequest.class
+com\example\demo\repository\AmenityRepository.class
 com\example\demo\service\ViewingRequestEntityServiceImpl.class
 com\example\demo\controller\AdminController.class
 com\example\demo\service\RecentlyViewedServiceImpl.class
@@ -21,6 +23,7 @@ com\example\demo\entity\PropertyAddress.class
 com\example\demo\entity\PropertyAmenity.class
 com\example\demo\entity\ShortlistedProperty.class
 com\example\demo\repository\PropertyRepository.class
+com\example\demo\entity\Amenity.class
 com\example\demo\dto\CustomerProfileResponse.class
 com\example\demo\config\SecurityConfig.class
 com\example\demo\controller\AgentController.class

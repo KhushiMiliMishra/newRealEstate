@@ -14,6 +14,12 @@ import com.example.demo.repository.PropertyAmenityRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.demo.dto.PropertyResponseDTO;
+import com.example.demo.entity.Amenity;
+import com.example.demo.repository.AmenityRepository;
+
+import java.util.Objects;
+
 @Service
 public class PropertyServiceImpl implements PropertyService {
 
@@ -26,6 +32,8 @@ public class PropertyServiceImpl implements PropertyService {
 private RecentlyViewedRepository recentlyViewedRepository;
 @Autowired
 private PropertyAmenityRepository propertyAmenityRepository;
+@Autowired
+private AmenityRepository amenityRepository;
 
     @Override
 public Property createProperty(PropertyRequest request) {
@@ -243,5 +251,50 @@ public List<Property> searchByPriceRange(
     return propertyRepository.findByPriceBetween(
             minPrice,
             maxPrice);
+}
+@Override
+public PropertyResponseDTO getPropertyDetails(Long propertyId) {
+
+    Property property = propertyRepository
+            .findById(propertyId)
+            .orElseThrow(() ->
+                    new RuntimeException("Property not found"));
+
+    PropertyResponseDTO dto =
+            new PropertyResponseDTO();
+
+    dto.setPropertyId(property.getPropertyId());
+    dto.setTitle(property.getTitle());
+    dto.setDescription(property.getDescription());
+    dto.setPrice(property.getPrice());
+    dto.setBhk(property.getBhk());
+    dto.setBathrooms(property.getBathrooms());
+    dto.setAreaSqft(property.getAreaSqft());
+    dto.setCity(property.getCity());
+
+    dto.setImage1(property.getImage1());
+    dto.setImage2(property.getImage2());
+    dto.setImage3(property.getImage3());
+    dto.setImage4(property.getImage4());
+    dto.setImage5(property.getImage5());
+
+    List<PropertyAmenity> mappings =
+        propertyAmenityRepository.findByPropertyId(propertyId);
+
+    List<String> amenities =
+            mappings.stream()
+                    .map(mapping ->
+                            amenityRepository
+                                    .findById(mapping.getAmenityId())
+                                    .orElse(null))
+                    .filter(Objects::nonNull)
+                    .map(Amenity::getAmenityName)
+                    .toList();
+
+    System.out.println("Amenities = " + amenities);
+
+    dto.setAmenities(amenities);
+
+    return dto;
 }
 }

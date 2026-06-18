@@ -7,6 +7,8 @@ import com.example.demo.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.dto.PropertyResponseDTO;
+
 import java.util.List;
 
 @RestController
@@ -56,12 +58,12 @@ public List<Property> searchProperties(
 }
 
 
-    @GetMapping("/{id}")
-    public Property getPropertyById(
-            @PathVariable Long id) {
+   @GetMapping("/{id}")
+public PropertyResponseDTO getPropertyById(
+        @PathVariable Long id) {
 
-        return propertyService.getPropertyById(id);
-    }
+    return propertyService.getPropertyDetails(id);
+}
 
     @PutMapping("/{id}/approve")
     public Property approveProperty(

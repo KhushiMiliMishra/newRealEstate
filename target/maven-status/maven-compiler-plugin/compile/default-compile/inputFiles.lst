@@ -15,6 +15,7 @@ C:\Users\user\Desktop\backend\src\main\java\com\example\demo\service\ViewingRequ
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\service\ViewingRequestEntityService.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\controller\RecentlyViewedController.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\controller\ShortlistedPropertyController.java
+C:\Users\user\Desktop\backend\src\main\java\com\example\demo\dto\PropertyResponseDTO.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\CustomerProfile.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\controller\AdminController.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\config\SecurityConfig.java
@@ -46,6 +47,7 @@ C:\Users\user\Desktop\backend\src\main\java\com\example\demo\controller\Customer
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\AgentProfile.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\PropertyAddress.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\repository\AgentProfileRepository.java
+C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\Amenity.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\Viewing.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\service\RecentlyViewedServiceImpl.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\dto\LoginResponse.java
@@ -54,4 +56,5 @@ C:\Users\user\Desktop\backend\src\main\java\com\example\demo\config\JwtUtil.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\Property.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\service\ShortlistedPropertyServiceImpl.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\entity\User.java
+C:\Users\user\Desktop\backend\src\main\java\com\example\demo\repository\AmenityRepository.java
 C:\Users\user\Desktop\backend\src\main\java\com\example\demo\service\ViewingService.java

@@ -6,6 +6,8 @@ import com.example.demo.service.ShortlistedPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.entity.Property;
+
 import java.util.List;
 
 @RestController
@@ -30,12 +32,30 @@ public class ShortlistedPropertyController {
         return service.getShortlistedProperties(customerId);
     }
 
-    @DeleteMapping("/{shortlistId}")
-    public String removeFromShortlist(
-            @PathVariable Long shortlistId) {
+    @GetMapping("/properties/{customerId}")
+public List<Property> getShortlistedPropertyDetails(
+        @PathVariable Long customerId) {
 
-        service.removeFromShortlist(shortlistId);
+    return service.getShortlistedPropertyDetails(
+            customerId);
+}
 
-        return "Removed Successfully";
-    }
+@DeleteMapping("/{customerId}/{propertyId}")
+public String removeFromShortlist(
+        @PathVariable Long customerId,
+        @PathVariable Long propertyId) {
+
+    System.out.println(
+        "DELETE REQUEST => customerId="
+        + customerId +
+        " propertyId="
+        + propertyId
+    );
+
+    service.removeFromShortlist(
+            customerId,
+            propertyId);
+
+    return "Removed Successfully";
+}
 }

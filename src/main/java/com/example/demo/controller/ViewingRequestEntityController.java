@@ -47,4 +47,12 @@ public class ViewingRequestEntityController {
 
         return service.rejectRequest(id);
     }
+    @GetMapping("/customer/{customerId}")
+public List<ViewingRequestEntity>
+getCustomerRequests(
+        @PathVariable Long customerId) {
+
+    return service.getCustomerRequests(
+            customerId);
+}
 }
