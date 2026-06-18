@@ -4,6 +4,8 @@ import ActivityFeed from "../../components/dashboard/ActivityFeed";
 import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { UserPlus, Users, ShieldCheck, BarChart3, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getDashboardData } from "../../services/adminService";
 
 const platformGrowthData = [
   { name: "Jan", properties: 1200, agents: 180 },
@@ -16,16 +18,50 @@ const platformGrowthData = [
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+  totalUsers: 0,
+  totalProperties: 0,
+  totalViewings: 0,
+});
+useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      const data = await getDashboardData();
 
+      console.log("ADMIN DASHBOARD:", data);
+
+      setStats(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchDashboard();
+}, []);
   return (
     <MainLayout role="admin" title="Admin Dashboard">
       <div className="animate-slide-up space-y-8 font-sans text-left">
         
         {/* KPI SECTION */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KpiCard title="Active Listings" value="2,847" growth="+14%" />
-          <KpiCard title="Pending Reviews" value="84" growth="+7%" />
-          <KpiCard title="Verified Agents" value="326" growth="+11%" />
+          <KpiCard
+            title="Users"
+            value={stats.totalUsers.toString()}
+            growth=""
+          />
+
+          <KpiCard
+            title="Properties"
+            value={stats.totalProperties.toString()}
+            growth=""
+          />
+
+          <KpiCard
+            title="Viewings"
+            value={stats.totalViewings.toString()}
+            growth=""
+          />
+          
           <KpiCard title="Today's Inquiries" value="542" growth="+22%" />
         </div>
 

@@ -16,44 +16,44 @@ import {
   deleteProperty,
 } from "../../services/propertyService";
 
-const initialProperties = [
-  {
-    id: 1,
-    title: "Luxury Villa - Hyderabad",
-    type: "Villa",
-    location: "Hitech City",
-    price: "₹2.5 Cr",
-    views: 1248,
-    inquiries: 52,
-    shortlisted: 28,
-    updated: "08 Jun 2026",
-    status: "Active",
-  },
-  {
-    id: 2,
-    title: "Skyline Apartment",
-    type: "Apartment",
-    location: "Whitefield",
-    price: "₹98 Lakhs",
-    views: 842,
-    inquiries: 34,
-    shortlisted: 16,
-    updated: "07 Jun 2026",
-    status: "Pending Approval",
-  },
-  {
-    id: 3,
-    title: "Commercial Space",
-    type: "Commercial",
-    location: "OMR Chennai",
-    price: "₹1.8 Cr",
-    views: 516,
-    inquiries: 18,
-    shortlisted: 9,
-    updated: "05 Jun 2026",
-    status: "Draft",
-  },
-];
+// const initialProperties = [
+//   {
+//     id: 1,
+//     title: "Luxury Villa - Hyderabad",
+//     type: "Villa",
+//     location: "Hitech City",
+//     price: "₹2.5 Cr",
+//     views: 1248,
+//     inquiries: 52,
+//     shortlisted: 28,
+//     updated: "08 Jun 2026",
+//     status: "Active",
+//   },
+//   {
+//     id: 2,
+//     title: "Skyline Apartment",
+//     type: "Apartment",
+//     location: "Whitefield",
+//     price: "₹98 Lakhs",
+//     views: 842,
+//     inquiries: 34,
+//     shortlisted: 16,
+//     updated: "07 Jun 2026",
+//     status: "Pending Approval",
+//   },
+//   {
+//     id: 3,
+//     title: "Commercial Space",
+//     type: "Commercial",
+//     location: "OMR Chennai",
+//     price: "₹1.8 Cr",
+//     views: 516,
+//     inquiries: 18,
+//     shortlisted: 9,
+//     updated: "05 Jun 2026",
+//     status: "Draft",
+//   },
+// ];
 
 export default function PropertyListPage() {
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ export default function PropertyListPage() {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold font-heading text-slate-800">
-              My Property Listings
+              My Property Listings 
             </h2>
             <p className="text-xs text-slate-400 mt-1">
               Manage, monitor, and optimize your listings on the marketplace.
