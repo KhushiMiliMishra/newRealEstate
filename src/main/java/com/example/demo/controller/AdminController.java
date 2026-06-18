@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AdminDashboardResponse;
 import com.example.demo.entity.Property;
 import com.example.demo.entity.User;
 import com.example.demo.entity.Viewing;
@@ -36,8 +37,49 @@ public class AdminController {
         return propertyRepository.findAll();
     }
 
+    @GetMapping("/dashboard")
+    public AdminDashboardResponse getDashboard() {
+
+    return new AdminDashboardResponse(
+            userRepository.count(),
+            propertyRepository.count(),
+            viewingRepository.count()
+    );
+}
+    @GetMapping("/pending-properties")
+    public List<Property> getPendingProperties() {
+        return propertyRepository.findByPropertyStatus("PENDING");
+    }
     @GetMapping("/viewings")
     public List<Viewing> getAllViewings() {
         return viewingRepository.findAll();
+    }
+
+    @PutMapping("/properties/{id}/approve")
+public Property approveProperty(
+        @PathVariable Long id
+) {
+
+    Property property =
+            propertyRepository.findById(id)
+                    .orElseThrow();
+
+    property.setPropertyStatus("APPROVED");
+
+    return propertyRepository.save(property);
+}
+
+    @PutMapping("/properties/{id}/reject")
+    public Property rejectProperty(
+            @PathVariable Long id
+    ) {
+
+        Property property =
+                propertyRepository.findById(id)
+                        .orElseThrow();
+
+        property.setPropertyStatus("REJECTED");
+
+        return propertyRepository.save(property);
     }
 }

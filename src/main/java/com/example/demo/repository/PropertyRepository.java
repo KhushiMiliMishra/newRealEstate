@@ -14,6 +14,8 @@ public interface PropertyRepository
 
     List<Property> findByBhk(Integer bhk);
 
+    List<Property> findByPropertyStatus(String propertyStatus);
+    
     List<Property> findByPropertyTypeIgnoreCase(String propertyType);
 
     List<Property> findByTransactionTypeIgnoreCase(String transactionType);
