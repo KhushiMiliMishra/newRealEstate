@@ -157,7 +157,23 @@ public LoginResponse login(
 response.setToken(token);
     return response;
 }
-@PutMapping("/profile/{userId}")
+    @GetMapping("/profile/{userId}")
+    public Map<String, Object> getProfile(@PathVariable Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        Map<String, Object> response = new HashMap<>();
+        if (user == null) {
+            response.put("message", "User not found");
+            return response;
+        }
+        response.put("userId", user.getUserId());
+        response.put("fullName", user.getFullName());
+        response.put("email", user.getEmail());
+        response.put("phone", user.getPhone());
+        response.put("role", user.getRole());
+        return response;
+    }
+
+    @PutMapping("/profile/{userId}")
 public Map<String, Object> updateProfile(
         @PathVariable Long userId,
         @RequestBody ProfileUpdateRequest request

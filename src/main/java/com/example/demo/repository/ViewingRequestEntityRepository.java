@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ViewingRequestEntityRepository
         extends JpaRepository<ViewingRequestEntity, Long> {
-                List<ViewingRequestEntity>
-findByCustomerId(Long customerId);
+
+    List<ViewingRequestEntity> findByCustomerId(
+            Long customerId);
+
+    List<ViewingRequestEntity> findByAgentId(
+            Long agentId);
 }

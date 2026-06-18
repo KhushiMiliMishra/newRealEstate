@@ -19,6 +19,11 @@ public class ViewingRequestEntity {
 
     @Column(name = "agent_id")
     private Long agentId;
+    @Column(name = "customer_name")
+    private String customerName;
+
+    @Column(name = "property_title")
+    private String propertyTitle;
 
     @Column(name = "requested_date")
     private String requestedDate;
@@ -61,6 +66,21 @@ public class ViewingRequestEntity {
     public void setAgentId(Long agentId) {
         this.agentId = agentId;
     }
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getPropertyTitle() {
+        return propertyTitle;
+    }
+
+    public void setPropertyTitle(String propertyTitle) {
+        this.propertyTitle = propertyTitle;
+    }
 
     public String getRequestedDate() {
         return requestedDate;
@@ -93,4 +113,5 @@ public class ViewingRequestEntity {
     public void setNotes(String notes) {
         this.notes = notes;
     }
+    
 }

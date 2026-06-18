@@ -13,6 +13,7 @@ public interface ViewingRequestEntityService {
     List<ViewingRequestEntity> getAllRequests();
      List<ViewingRequestEntity>
     getCustomerRequests(Long customerId);
+    List<ViewingRequestEntity> getRequestsByAgent(Long agentId);
 
     ViewingRequestEntity approveRequest(Long id);
 

@@ -11,6 +11,10 @@ public class ViewingRequestDto {
 
     private Long agentId;
 
+    private String customerName;
+
+    private String propertyTitle;
+
     private String requestedDate;
 
     private String requestedTime;

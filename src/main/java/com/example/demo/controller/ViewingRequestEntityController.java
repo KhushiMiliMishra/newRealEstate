@@ -33,6 +33,14 @@ public class ViewingRequestEntityController {
 
         return service.getAllRequests();
     }
+    @GetMapping("/agent/{agentId}")
+public List<ViewingRequestEntity>
+getRequestsByAgent(
+        @PathVariable Long agentId) {
+
+    return service.getRequestsByAgent(
+            agentId);
+}
 
     @PutMapping("/{id}/approve")
     public ViewingRequestEntity approveRequest(
