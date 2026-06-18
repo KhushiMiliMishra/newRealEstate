@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,76 +17,12 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { properties } from "../data/properties";
+import { getPropertyById } from "../services/propertyService";
+import { addToShortlist } from "../services/shortlistService";
 
 const { width } = Dimensions.get("window");
 
 // Mocking rich detail datasets for each property to simulate real database columns
-const propertiesExtendedDetails: Record<string, {
-  area: string;
-  bathrooms: string;
-  age: string;
-  status: "Available" | "Sold" | "Rented" | "Reserved";
-  images: string[];
-  description: string;
-  amenities: string[];
-  virtualTour: string;
-  agentName: string;
-  agentRole: string;
-  agentAvatar: string;
-}> = {
-  "1": {
-    area: "1,850 sq.ft",
-    bathrooms: "3 Baths",
-    age: "2 Years Old",
-    status: "Available",
-    images: [
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811",
-    ],
-    description: "Experience luxury living with breathtaking sea views, modern interiors, and premium amenities designed for comfort and elegance. This spectacular home features Italian marble flooring, floor-to-ceiling glass windows, a fully equipped modular kitchen, and an expansive balcony overlooking the East Coast Road waters.",
-    amenities: ["Sea View", "Swimming Pool", "Premium Gym", "24/7 Security", "Covered Parking", "Power Backup", "Private Elevator"],
-    virtualTour: "https://my.matterport.com/show/?m=propvaultsea",
-    agentName: "Arjun Realty",
-    agentRole: "Exclusive Listing Agent • Chennai ECR",
-    agentAvatar: "https://i.pravatar.cc/300?img=12",
-  },
-  "2": {
-    area: "3,200 sq.ft",
-    bathrooms: "4 Baths",
-    age: "Brand New",
-    status: "Reserved",
-    images: [
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227",
-      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914",
-    ],
-    description: "An exceptional modern villa offering unmatched privacy and high-end design. Featuring a spacious landscaped lawn, smart home automation, high ceilings, a private workspace, and high-spec modular fittings. Perfect for families looking for quiet premium living near the OMR tech corridor.",
-    amenities: ["Landscaped Garden", "Smart Automation", "Swimming Pool", "Home Office", "EV Charging Station", "Servant Quarters"],
-    virtualTour: "https://my.matterport.com/show/?m=propvaultvilla",
-    agentName: "Sarah Wilson",
-    agentRole: "Senior Property Consultant • OMR",
-    agentAvatar: "https://i.pravatar.cc/300?img=5",
-  },
-  "3": {
-    area: "1,100 sq.ft",
-    bathrooms: "2 Baths",
-    age: "5 Years Old",
-    status: "Rented",
-    images: [
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
-      "https://images.unsplash.com/photo-1502672023488-70e25813eb80",
-    ],
-    description: "Beautifully maintained, cozy city apartment in the heart of Anna Nagar. Superb connectivity, situated just 500m from the Metro Station. Secure neighborhood, fully-furnished bedrooms, and modern kitchen. Immediate rental returns or perfect ready-to-move-in residence.",
-    amenities: ["Metro Proximity", "Fully Furnished", "24/7 Security", "Terrace Garden", "Gas Pipeline", "Kids Play Area"],
-    virtualTour: "https://my.matterport.com/show/?m=propvaultcity",
-    agentName: "Sarah Wilson",
-    agentRole: "Senior Property Consultant • Anna Nagar",
-    agentAvatar: "https://i.pravatar.cc/300?img=5",
-  },
-};
 
 export default function PropertyDetailScreen({ route, navigation }: any) {
   const { colors, isDark } = useTheme();
@@ -94,15 +30,46 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [priceAlert, setPriceAlert] = useState(false);
 
+  const handleShortlist = async () => {
+  try {
+    await addToShortlist(
+      1, // temporary customer id
+      property.id
+    );
+
+    Alert.alert(
+      "Success",
+      "Property added to shortlist"
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
   // Extract route parameters
   const propertyId = route.params?.propertyId || "1";
-  const propertyBasic = properties.find((p) => p.id === propertyId) || properties[0];
-  const propertyDetail = propertiesExtendedDetails[propertyBasic.id] || propertiesExtendedDetails["1"];
+  const [property, setProperty] = useState<any>(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  loadProperty();
+}, []);
+
+const loadProperty = async () => {
+  try {
+    const data = await getPropertyById(Number(propertyId));
+    setProperty(data);
+  } catch (error) {
+    console.log("Error loading property:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Check out this amazing property: ${propertyBasic.title} at ${propertyBasic.location} listed for ${propertyBasic.price} on PropVault!`,
+        message: `Check out this amazing property: ${property.title} at ${property.location} listed for ${property.price} on PropVault!`,
       });
     } catch (error) {
       console.warn(error);
@@ -111,17 +78,17 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
 
   const handleChatAgent = () => {
     // Look for chat room with this agent
-    const room = chatRooms.find((r) => r.agentName === propertyDetail.agentName);
+    const room = chatRooms.find((r) => r.agentName === property.agentName);
     if (room) {
       navigation.navigate("ChatDetail", { roomId: room.id });
     } else {
       // Create new roomId, navigate
       navigation.navigate("ChatDetail", { 
-        roomId: "cr_new_" + propertyBasic.id,
-        agentName: propertyDetail.agentName,
-        agentAvatar: propertyDetail.agentAvatar,
-        propertyTitle: propertyBasic.title,
-        propertyPrice: propertyBasic.price,
+        roomId: "cr_new_" + property.id,
+        agentName: property.agentName,
+        agentAvatar: property.agentAvatar,
+        propertyTitle: property.title,
+        propertyPrice: property.price,
       });
     }
   };
@@ -141,7 +108,34 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
     }
   };
 
-  const badgeConfig = getStatusBadge(propertyDetail.status);
+  if (loading) {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>Loading Property...</Text>
+    </View>
+  );
+}
+
+if (!property) {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>Property Not Found</Text>
+    </View>
+  );
+}
+  const badgeConfig = getStatusBadge(property.status || "Available");
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -162,11 +156,11 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
             }}
             scrollEventThrottle={16}
           >
-            {propertyDetail.images.map((imgUrl, index) => (
-              <Image 
-                key={index} 
-                source={{ uri: imgUrl }} 
-                style={[styles.image, { width }]} 
+            {property.images.map((imgUrl: string, index: number) => (
+              <Image
+                key={index}
+                source={{ uri: imgUrl }}
+                style={[styles.image, { width }]}
               />
             ))}
           </ScrollView>
@@ -190,19 +184,33 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
 
             <TouchableOpacity 
               style={[styles.circleBtn, { backgroundColor: "rgba(15, 23, 42, 0.65)", marginLeft: 10 }]}
-              onPress={() => toggleShortlist(propertyBasic.id)}
+              onPress={async () => {
+                try {
+                  await addToShortlist(
+                    1, // customer id
+                    property.id
+                  );
+
+                  Alert.alert(
+                    "Success",
+                    "Property added to shortlist"
+                  );
+                } catch (error) {
+                  console.log(error);
+                }
+              }}
             >
               <Ionicons 
-                name={isShortlisted(propertyBasic.id) ? "heart" : "heart-outline"} 
+                name={isShortlisted(property.id.toString()) ? "heart" : "heart-outline"} 
                 size={20} 
-                color={isShortlisted(propertyBasic.id) ? "#EF4444" : "#fff"} 
+                color={isShortlisted(property.id.toString()) ? "#EF4444" : "#fff"} 
               />
             </TouchableOpacity>
           </View>
 
           {/* INDICATOR DOTS */}
           <View style={styles.dotsRow}>
-            {propertyDetail.images.map((_, index) => (
+            {property.images.map((_: string, index: number) => (
               <View 
                 key={index}
                 style={[
@@ -242,31 +250,31 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
           </View>
 
           <View style={styles.titlePriceRow}>
-            <Text style={[styles.title, { color: colors.text }]}>{propertyBasic.title}</Text>
-            <Text style={[styles.priceText, { color: colors.primary }]}>{propertyBasic.price}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{property.title}</Text>
+            <Text style={[styles.priceText, { color: colors.primary }]}>{property.price}</Text>
           </View>
 
           <Text style={[styles.location, { color: colors.mutedText }]}>
-            📍 {propertyBasic.location}
+            📍 {property.location}
           </Text>
 
           {/* PROPERTY STATS */}
           <View style={styles.statsRow}>
             <View style={[styles.statCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               <Ionicons name="bed-outline" size={20} color={colors.secondary} style={{ marginBottom: 6 }} />
-              <Text style={[styles.statValue, { color: colors.text }]}>{propertyBasic.bhk}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{property.bhk}</Text>
               <Text style={[styles.statLabel, { color: colors.mutedText }]}>Configuration</Text>
             </View>
 
             <View style={[styles.statCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               <Ionicons name="resize-outline" size={20} color={colors.secondary} style={{ marginBottom: 6 }} />
-              <Text style={[styles.statValue, { color: colors.text }]}>{propertyDetail.area}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{property.area}</Text>
               <Text style={[styles.statLabel, { color: colors.mutedText }]}>Super Area</Text>
             </View>
 
             <View style={[styles.statCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               <Ionicons name="calendar-outline" size={20} color={colors.secondary} style={{ marginBottom: 6 }} />
-              <Text style={[styles.statValue, { color: colors.text }]}>{propertyDetail.age}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{property.age}</Text>
               <Text style={[styles.statLabel, { color: colors.mutedText }]}>Property Age</Text>
             </View>
           </View>
@@ -274,13 +282,13 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
           {/* DESCRIPTION */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Description</Text>
           <Text style={[styles.description, { color: colors.mutedText }]}>
-            {propertyDetail.description}
+            {property.description}
           </Text>
 
           {/* AMENITIES */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Premium Amenities</Text>
           <View style={styles.amenities}>
-            {propertyDetail.amenities.map((item, index) => (
+            {property.amenities?.map((item: string, index: number) => (
               <View key={index} style={[styles.amenityChip, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
                 <Ionicons name="checkmark-circle-outline" size={14} color={colors.accent} style={{ marginRight: 6 }} />
                 <Text style={[styles.amenityText, { color: colors.text }]}>{item}</Text>
@@ -293,26 +301,26 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
           <View style={[styles.locationCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
             <View style={styles.locationHeaderRow}>
               <Ionicons name="location" size={22} color={colors.secondary} />
-              <Text style={[styles.locationSubText, { color: colors.text }]}>{propertyBasic.location}</Text>
+              <Text style={[styles.locationSubText, { color: colors.text }]}>{property.location}</Text>
             </View>
             
             <View style={styles.coordsRow}>
               <View style={styles.coordBox}>
                 <Text style={[styles.coordLabel, { color: colors.mutedText }]}>Latitude</Text>
-                <Text style={[styles.coordValue, { color: colors.text }]}>{propertyBasic.latitude || 13.0827}</Text>
+                <Text style={[styles.coordValue, { color: colors.text }]}>{property.latitude || 13.0827}</Text>
               </View>
               <View style={styles.coordBox}>
                 <Text style={[styles.coordLabel, { color: colors.mutedText }]}>Longitude</Text>
-                <Text style={[styles.coordValue, { color: colors.text }]}>{propertyBasic.longitude || 80.2707}</Text>
+                <Text style={[styles.coordValue, { color: colors.text }]}>{property.longitude || 80.2707}</Text>
               </View>
             </View>
 
             <TouchableOpacity 
               style={[styles.mapsBtn, { backgroundColor: colors.primary }]}
               onPress={() => {
-                const lat = propertyBasic.latitude || 13.0827;
-                const lng = propertyBasic.longitude || 80.2707;
-                const label = encodeURIComponent(propertyBasic.title);
+                const lat = property.latitude || 13.0827;
+                const lng = property.longitude || 80.2707;
+                const label = encodeURIComponent(property.title);
                 const url = Platform.select({
                   ios: `maps://?q=${label}&ll=${lat},${lng}`,
                   android: `geo:0,0?q=${lat},${lng}(${label})`,
@@ -343,13 +351,13 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
           {/* AGENT CARD */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Listed By Agent</Text>
           <View style={[styles.agentCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-            <TouchableOpacity onPress={() => navigation.navigate("AgentProfile", { agentName: propertyDetail.agentName, agentAvatar: propertyDetail.agentAvatar })}>
-              <Image source={{ uri: propertyDetail.agentAvatar }} style={styles.agentAvatar} />
+            <TouchableOpacity onPress={() => navigation.navigate("AgentProfile", { agentName: property.agentName, agentAvatar: property.agentAvatar })}>
+              <Image source={{ uri: property.agentAvatar }} style={styles.agentAvatar} />
             </TouchableOpacity>
 
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={[styles.agentName, { color: colors.text }]}>{propertyDetail.agentName}</Text>
-              <Text style={[styles.agentRole, { color: colors.mutedText }]}>{propertyDetail.agentRole}</Text>
+              <Text style={[styles.agentName, { color: colors.text }]}>{property.agentName}</Text>
+              <Text style={[styles.agentRole, { color: colors.mutedText }]}>{property.agentRole}</Text>
               <View style={styles.agentRatingRow}>
                 <Ionicons name="star" size={14} color="#FFD700" />
                 <Text style={[styles.agentRatingText, { color: colors.text }]}> 4.8 (120 reviews)</Text>
@@ -369,11 +377,10 @@ export default function PropertyDetailScreen({ route, navigation }: any) {
         <TouchableOpacity
           style={[styles.ctaButton, { backgroundColor: colors.primary }]}
           onPress={() => navigation.navigate("ScheduleViewing", {
-            propertyId: propertyBasic.id,
-            propertyTitle: propertyBasic.title,
-            propertyPrice: propertyBasic.price,
-            propertyLocation: propertyBasic.location,
-            agentName: propertyDetail.agentName,
+            propertyId: property.id,
+            propertyTitle: property.title,
+            propertyPrice: property.price,
+            propertyLocation: property.location,
           })}
         >
           <Ionicons name="calendar-outline" size={18} color="#fff" style={{ marginRight: 8 }} />

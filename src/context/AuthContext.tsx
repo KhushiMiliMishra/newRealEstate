@@ -348,10 +348,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
 
         setShortlistedProperties(storedShortlisted ? JSON.parse(storedShortlisted) : []); // villa default shortlisted
-        setSavedSearches(storedSavedSearches ? JSON.parse(storedSavedSearches) : []);
-        setViewingRequests(storedVisits ? JSON.parse(storedVisits) : []);
-        setChatRooms(storedChats ? JSON.parse(storedChats) : []);
-        setNotifications(storedNotifications ? JSON.parse(storedNotifications) : []);
+        setSavedSearches(storedSavedSearches ? JSON.parse(storedSavedSearches) : mockSavedSearches);
+        setViewingRequests(storedVisits ? JSON.parse(storedVisits) : mockViewingRequests);
+        setChatRooms(storedChats ? JSON.parse(storedChats) : mockChatRooms);
+        setNotifications(storedNotifications ? JSON.parse(storedNotifications) : mockNotifications);
       } catch (error) {
         console.error("Failed to load auth states", error);
       }
@@ -401,8 +401,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUser(userData);
     setIsAuthenticated(true);
-
-    try {
+      try {
       const shortlist = await getShortlistedProperties(
         response.userId
       );
@@ -419,7 +418,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setShortlistedProperties([]);
     }
 
-    setProfile(profileData);
     await AsyncStorage.setItem(
       "app-user",
       JSON.stringify(userData)
@@ -563,46 +561,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         response.preferredTransactionType,
     };
 
-    setUser(updatedUser);
-    setProfile(updatedProfile);
-
-    await AsyncStorage.setItem(
-      "app-user",
-      JSON.stringify(updatedUser)
-    );
-    if (response.token) {
-      await AsyncStorage.setItem(
-        "jwt-token",
-        response.token
-      );
-    }
-    await AsyncStorage.setItem(
-      "app-profile",
-      JSON.stringify(updatedProfile)
-    );
-
-    const savedToken =
-  await AsyncStorage.getItem("jwt-token");
-
-console.log("SAVED TOKEN:", savedToken);
-
-  } catch (error) {
-    console.log(
-      "PROFILE UPDATE ERROR:",
-      error
-    );
-    throw error;
-  }
-};
-
-  const toggleShortlist = async (propertyId: string) => {
-    const updated = shortlistedProperties.includes(propertyId)
-      ? shortlistedProperties.filter((id) => id !== propertyId)
-      : [...shortlistedProperties, propertyId];
-    setShortlistedProperties(updated);
-    await AsyncStorage.setItem("app-shortlisted", JSON.stringify(updated));
+    setUser(nextUser);
+    setProfile(nextProfile);
+    await AsyncStorage.setItem("app-user", JSON.stringify(nextUser));
+    await AsyncStorage.setItem("app-profile", JSON.stringify(nextProfile));
   };
 
+const toggleShortlist = async (
+  propertyId: string
+) => {
+
+  if (!user) return;
+
+  try {
+
+    if (
+      shortlistedProperties.includes(propertyId)
+    ) {
+
+      console.log(
+        "REMOVE CLICKED:",
+        user.userId,
+        propertyId
+      );
+
+      await removeFromShortlist(
+        user.userId,
+        Number(propertyId)
+      );
+
+      console.log(
+        "DELETE API COMPLETED"
+      );
+
+      const updated =
+        shortlistedProperties.filter(
+          (id) => id !== propertyId
+        );
+
+      setShortlistedProperties(updated);
+
+      await AsyncStorage.setItem(
+        "app-shortlisted",
+        JSON.stringify(updated)
+      );
+
+    } else {
+
+      console.log(
+        "ADD CLICKED:",
+        user.userId,
+        propertyId
+      );
+
+      await addToShortlist(
+        user.userId,
+        Number(propertyId)
+      );
+
+      console.log(
+        "ADD API COMPLETED"
+      );
+
+      const updated = [
+        ...shortlistedProperties,
+        propertyId,
+      ];
+
+      setShortlistedProperties(updated);
+
+      await AsyncStorage.setItem(
+        "app-shortlisted",
+        JSON.stringify(updated)
+      );
+    }
+
+  } catch (error) {
+
+    console.log(
+      "SHORTLIST ERROR:",
+      error
+    );
+
+  }
+};
   const isShortlisted = (propertyId: string): boolean => {
     return shortlistedProperties.includes(propertyId);
   };
