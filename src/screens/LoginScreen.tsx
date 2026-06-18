@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect, useState } from "react";
 import {
   Alert,
   SafeAreaView,
@@ -12,13 +15,14 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeContext";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
 // import { useEffect } from "react";
+
+
 WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen({ navigation }: any) {
+  const { login, googleLogin } = useAuth();
   const { colors, isDark } = useTheme();
-  const { login } = useAuth();
+  // const { login } = useAuth();
   console.log("LOGIN FUNCTION:", login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,12 +36,45 @@ export default function LoginScreen({ navigation }: any) {
 
   useEffect(() => {
   if (response?.type === "success") {
-    console.log("GOOGLE LOGIN SUCCESS");
-    console.log(response);
-
-    navigation.replace("Main");
+    handleGoogleSuccess();
   }
 }, [response]);
+
+const handleGoogleSuccess = async () => {
+  try {
+    // response is narrowed to success in useEffect, but TS still needs a hint
+    const accessToken = (response as any)?.authentication?.accessToken;
+
+    console.log("ACCESS TOKEN:", accessToken);
+
+    const userInfoResponse = await fetch(
+      "https://www.googleapis.com/userinfo/v2/me",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const userInfo = await userInfoResponse.json();
+
+    console.log("GOOGLE USER:", userInfo);
+    const googleUser = {
+      userId: Number(userInfo.id.slice(-6)),
+      fullName: userInfo.name,
+      email: userInfo.email,
+      role: "CUSTOMER" as const,
+    };
+
+    await googleLogin(googleUser);
+
+navigation.replace("Main");
+
+  } catch (error) {
+    console.log("GOOGLE USER FETCH ERROR:", error);
+  }
+};
+
 const handleGoogleLogin = async () => {
   try {
     await promptAsync();
@@ -53,6 +90,7 @@ const handleGoogleLogin = async () => {
     return;
   }
 
+  
   const success = await login(email, password);
 
   console.log("LOGIN RESULT:", success);
@@ -284,3 +322,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+
+

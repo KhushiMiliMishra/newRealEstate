@@ -17,7 +17,7 @@ import { useTheme } from "../theme/ThemeContext";
 export default function ProfileScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const { user, profile, shortlistedProperties, viewingRequests, savedSearches, logout } = useAuth();
-
+  console.log("PROFILE USER:", user);
 // import { Alert, Platform } from "react-native";
 
 const handleLogout = async () => {
@@ -77,16 +77,17 @@ const handleLogout = async () => {
           />
 
           <Text style={[styles.name, { color: colors.text }]}>
-            {user?.fullName || "Guest Seeker"}
+            {user?.fullName ?? ""}
           </Text>
 
           <Text style={[styles.email, { color: colors.mutedText }]}>
-            {user?.email || "seeker@propvault.com"}
+            {user?.email ?? ""}
           </Text>
 
           <Text style={[styles.phone, { color: colors.secondary }]}>
-            {user?.phone || "+91 98765 43210"}
+            {user?.phone ?? ""}
           </Text>
+
 
           <TouchableOpacity 
             style={[styles.editButton, { backgroundColor: colors.primary }]}
@@ -152,7 +153,7 @@ const handleLogout = async () => {
 
             <View style={styles.prefItem}>
               <Text style={[styles.prefLabel, { color: colors.mutedText }]}>Target Locality</Text>
-              <Text style={[styles.prefValue, { color: colors.text }]}>{profile.preferredLocality}</Text>
+              <Text style={[styles.prefValue, { color: colors.text }]}>{profile.preferredLocality ?? ""}</Text>
             </View>
 
             <View style={styles.prefGrid}>

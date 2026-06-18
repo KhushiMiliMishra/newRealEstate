@@ -24,12 +24,20 @@ export default function EditProfileScreen({ navigation }: any) {
   const [phone, setPhone] = useState(user?.phone || "");
 
   // Preferences (Customer Profile Table alignment)
-  const [minBudget, setMinBudget] = useState(profile?.minBudget?.toString() || "5000000");
-  const [maxBudget, setMaxBudget] = useState(profile?.maxBudget?.toString() || "25000000");
-  const [locality, setLocality] = useState(profile?.preferredLocality || "");
-  const [propertyType, setPropertyType] = useState(profile?.preferredPropertyType || "Villa");
-  const [transactionType, setTransactionType] = useState(profile?.preferredTransactionType || "BUY");
+  const [minBudget, setMinBudget] =
+  useState(profile?.minBudget?.toString() || "");
 
+const [maxBudget, setMaxBudget] =
+  useState(profile?.maxBudget?.toString() || "");
+
+const [propertyType, setPropertyType] =
+  useState(profile?.preferredPropertyType || "");
+
+const [transactionType, setTransactionType] =
+  useState(profile?.preferredTransactionType || "");
+const [locality, setLocality] =
+  useState(profile?.preferredLocality || "");
+  
   const handleSave = async () => {
     if (!fullName || !email || !phone || !locality) {
       Alert.alert("Missing Fields", "Please fill in all details before saving.");

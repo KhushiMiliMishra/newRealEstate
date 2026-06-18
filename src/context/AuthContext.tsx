@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { loginUser, registerUser } from "../services/authService";
+import { getShortlistedProperties } from "../services/shortlistService";
+import { addToShortlist, removeFromShortlist } from "../services/shortlistService";
+
 export interface User {
   userId: number;
   fullName: string;
@@ -92,6 +95,7 @@ interface AuthContextData {
   addViewingRequest: (request: Omit<ViewingRequest, "id" | "status">) => void;
   sendChatMessage: (roomId: string, text: string) => void;
   markNotificationRead: (id: string) => void;
+  googleLogin: (user: User) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({
@@ -114,6 +118,7 @@ const AuthContext = createContext<AuthContextData>({
   addViewingRequest: () => {},
   sendChatMessage: () => {},
   markNotificationRead: () => {},
+  googleLogin: async () => {},
 });
 
 // INITIAL MOCK DATA representing DB content
@@ -124,19 +129,21 @@ const AuthContext = createContext<AuthContextData>({
 //   role: "CUSTOMER",
 // };
 
-const mockProfile: CustomerProfile = {
-  minBudget: 5000000, // 50 L
-  maxBudget: 25000000, // 2.5 Cr
-  preferredLocality: "OMR, Chennai",
-  preferredPropertyType: "Villa",
-  preferredTransactionType: "BUY",
-};
+
+
+// const mockProfile: CustomerProfile = {
+//   minBudget: 5000000, // 50 L
+//   maxBudget: 25000000, // 2.5 Cr
+//   preferredLocality: "OMR, Chennai",
+//   preferredPropertyType: "Villa",
+//   preferredTransactionType: "BUY",
+// };
 
 const mockSavedSearches: SavedSearch[] = [
   {
     id: "s1",
     title: "Villas in OMR Chennai",
-    locality: "OMR, Chennai",
+    locality: "OMR, Chennai", 
     minBudget: 15000000,
     maxBudget: 30000000,
     propertyType: "Villa",
@@ -321,6 +328,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initializeAuth = async () => {
       try {
         const storedUser = await AsyncStorage.getItem("app-user");
+        console.log("STORED USER:", storedUser);
         const storedProfile = await AsyncStorage.getItem("app-profile");
         const storedShortlisted = await AsyncStorage.getItem("app-shortlisted");
         const storedSavedSearches = await AsyncStorage.getItem("app-saved-searches");
@@ -330,6 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (storedUser && storedProfile) {
           setUser(JSON.parse(storedUser));
+          console.log("USER LOADED:", JSON.parse(storedUser));
           setProfile(JSON.parse(storedProfile));
           setIsAuthenticated(true);
         } else {
@@ -338,11 +347,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   setIsAuthenticated(false);
                 }
 
-        setShortlistedProperties(storedShortlisted ? JSON.parse(storedShortlisted) : ["2"]); // villa default shortlisted
-        setSavedSearches(storedSavedSearches ? JSON.parse(storedSavedSearches) : mockSavedSearches);
-        setViewingRequests(storedVisits ? JSON.parse(storedVisits) : mockViewingRequests);
-        setChatRooms(storedChats ? JSON.parse(storedChats) : mockChatRooms);
-        setNotifications(storedNotifications ? JSON.parse(storedNotifications) : mockNotifications);
+        setShortlistedProperties(storedShortlisted ? JSON.parse(storedShortlisted) : []); // villa default shortlisted
+        setSavedSearches(storedSavedSearches ? JSON.parse(storedSavedSearches) : []);
+        setViewingRequests(storedVisits ? JSON.parse(storedVisits) : []);
+        setChatRooms(storedChats ? JSON.parse(storedChats) : []);
+        setNotifications(storedNotifications ? JSON.parse(storedNotifications) : []);
       } catch (error) {
         console.error("Failed to load auth states", error);
       }
@@ -379,17 +388,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: response.role || "CUSTOMER",
       phone: response.phone,
     };
-
-    console.log("STEP 5");
+    const profileData: CustomerProfile = {
+      minBudget: response.budgetMin || 0,
+      maxBudget: response.budgetMax || 0,
+      preferredLocality: response.preferredLocality || "",
+      preferredPropertyType:
+        response.preferredPropertyType || "",
+      preferredTransactionType:
+        response.transactionType || "",
+    };
+        console.log("STEP 5");
 
     setUser(userData);
     setIsAuthenticated(true);
 
+    try {
+      const shortlist = await getShortlistedProperties(
+        response.userId
+      );
+
+      console.log("SHORTLIST:", shortlist);
+
+      setShortlistedProperties(
+      shortlist.map((id: number) =>
+        id.toString()
+      )
+    );
+    } catch (error) {
+      console.log("Shortlist load failed:", error);
+      setShortlistedProperties([]);
+    }
+
+    setProfile(profileData);
     await AsyncStorage.setItem(
       "app-user",
       JSON.stringify(userData)
     );
-
+    await AsyncStorage.setItem(
+      "app-profile",
+      JSON.stringify(profileData)
+    );
+    await AsyncStorage.setItem(
+  "jwt-token",
+  response.token
+);
     console.log("STEP 6");
 
     return true;
@@ -454,25 +496,104 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 };
 
-  const updateProfile = async (updatedData: Partial<User & CustomerProfile>) => {
-    const nextUser = user ? { ...user } : { userId: 0, fullName: "", email: "", phone: "", role: "CUSTOMER" as const };
-    const nextProfile = profile ? { ...profile } : { minBudget: 0, maxBudget: 0, preferredLocality: "", preferredPropertyType: "", preferredTransactionType: "" };
+  const updateProfile = async (
+  updatedData: Partial<User & CustomerProfile>
+) => {
+  if (!user) return;
 
-    if (updatedData.fullName !== undefined) nextUser.fullName = updatedData.fullName;
-    if (updatedData.email !== undefined) nextUser.email = updatedData.email;
-    if (updatedData.phone !== undefined) nextUser.phone = updatedData.phone;
+  try {
+    const payload = {
+      fullName:
+        updatedData.fullName ??
+        user.fullName,
 
-    if (updatedData.minBudget !== undefined) nextProfile.minBudget = updatedData.minBudget;
-    if (updatedData.maxBudget !== undefined) nextProfile.maxBudget = updatedData.maxBudget;
-    if (updatedData.preferredLocality !== undefined) nextProfile.preferredLocality = updatedData.preferredLocality;
-    if (updatedData.preferredPropertyType !== undefined) nextProfile.preferredPropertyType = updatedData.preferredPropertyType;
-    if (updatedData.preferredTransactionType !== undefined) nextProfile.preferredTransactionType = updatedData.preferredTransactionType;
+      email:
+        updatedData.email ??
+        user.email,
 
-    setUser(nextUser);
-    setProfile(nextProfile);
-    await AsyncStorage.setItem("app-user", JSON.stringify(nextUser));
-    await AsyncStorage.setItem("app-profile", JSON.stringify(nextProfile));
-  };
+      phone:
+        updatedData.phone ??
+        user.phone,
+
+      minBudget:
+        updatedData.minBudget ??
+        profile?.minBudget,
+
+      maxBudget:
+        updatedData.maxBudget ??
+        profile?.maxBudget,
+
+      preferredLocality:
+        updatedData.preferredLocality ??
+        profile?.preferredLocality,
+
+      preferredPropertyType:
+        updatedData.preferredPropertyType ??
+        profile?.preferredPropertyType,
+
+      preferredTransactionType:
+        updatedData.preferredTransactionType ??
+        profile?.preferredTransactionType,
+    };
+
+    const response =
+      (await updateCustomerProfile(
+        user.userId,
+        payload
+      )) as User & CustomerProfile & { token?: string };
+
+    const updatedUser: User = {
+      userId: response.userId,
+      fullName: response.fullName,
+      email: response.email,
+      phone: response.phone,
+      role: "CUSTOMER",
+    };
+
+    const updatedProfile: CustomerProfile = {
+      minBudget: response.minBudget,
+      maxBudget: response.maxBudget,
+      preferredLocality:
+        response.preferredLocality,
+
+      preferredPropertyType:
+        response.preferredPropertyType,
+
+      preferredTransactionType:
+        response.preferredTransactionType,
+    };
+
+    setUser(updatedUser);
+    setProfile(updatedProfile);
+
+    await AsyncStorage.setItem(
+      "app-user",
+      JSON.stringify(updatedUser)
+    );
+    if (response.token) {
+      await AsyncStorage.setItem(
+        "jwt-token",
+        response.token
+      );
+    }
+    await AsyncStorage.setItem(
+      "app-profile",
+      JSON.stringify(updatedProfile)
+    );
+
+    const savedToken =
+  await AsyncStorage.getItem("jwt-token");
+
+console.log("SAVED TOKEN:", savedToken);
+
+  } catch (error) {
+    console.log(
+      "PROFILE UPDATE ERROR:",
+      error
+    );
+    throw error;
+  }
+};
 
   const toggleShortlist = async (propertyId: string) => {
     const updated = shortlistedProperties.includes(propertyId)
@@ -610,6 +731,103 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await AsyncStorage.setItem("app-notifications", JSON.stringify(updated));
   };
 
+  const googleLogin = async (user: User) => {
+    const emptyProfile: CustomerProfile = {
+      minBudget: 0,
+      maxBudget: 0,
+      preferredLocality: "",
+      preferredPropertyType: "",
+      preferredTransactionType: "",
+    };
+
+    setUser(user);
+    setProfile(emptyProfile);
+    setIsAuthenticated(true);
+
+    await AsyncStorage.setItem("app-user", JSON.stringify(user));
+    await AsyncStorage.setItem("app-profile", JSON.stringify(emptyProfile));
+  };
+
+  const toggleShortlist = async (
+  propertyId: string
+) => {
+
+  if (!user) return;
+
+  try {
+
+    if (
+      shortlistedProperties.includes(propertyId)
+    ) {
+
+      console.log(
+        "REMOVE CLICKED:",
+        user.userId,
+        propertyId
+      );
+
+      await removeFromShortlist(
+        user.userId,
+        Number(propertyId)
+      );
+
+      console.log(
+        "DELETE API COMPLETED"
+      );
+
+      const updated =
+        shortlistedProperties.filter(
+          (id) => id !== propertyId
+        );
+
+      setShortlistedProperties(updated);
+
+      await AsyncStorage.setItem(
+        "app-shortlisted",
+        JSON.stringify(updated)
+      );
+
+    } else {
+
+      console.log(
+        "ADD CLICKED:",
+        user.userId,
+        propertyId
+      );
+
+      await addToShortlist(
+        user.userId,
+        Number(propertyId)
+      );
+
+      console.log(
+        "ADD API COMPLETED"
+      );
+
+      const updated = [
+        ...shortlistedProperties,
+        propertyId,
+      ];
+
+      setShortlistedProperties(updated);
+
+      await AsyncStorage.setItem(
+        "app-shortlisted",
+        JSON.stringify(updated)
+      );
+    }
+
+  } catch (error) {
+
+    console.log(
+      "SHORTLIST ERROR:",
+      error
+    );
+
+  }
+};
+
+
   return (
     <AuthContext.Provider
       value={{
@@ -632,6 +850,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addViewingRequest,
         sendChatMessage,
         markNotificationRead,
+        googleLogin,
       }}
     >
       {children}
@@ -640,3 +859,85 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => useContext(AuthContext);
+async function updateCustomerProfile(
+  userId: number,
+  payload: {
+    fullName: string;
+    email: string;
+    phone: string | undefined;
+    minBudget: number | undefined;
+    maxBudget: number | undefined;
+    preferredLocality: string | undefined;
+    preferredPropertyType: string | undefined;
+    preferredTransactionType: string | undefined;
+  }
+) {
+  try {
+    const storedUser = await AsyncStorage.getItem("app-user");
+    const storedProfile = await AsyncStorage.getItem("app-profile");
+
+    const existingUser: User = storedUser
+      ? JSON.parse(storedUser)
+      : {
+          userId,
+          fullName: payload.fullName || "",
+          email: payload.email || "",
+          phone: payload.phone,
+          role: "CUSTOMER",
+        };
+
+    const existingProfile: CustomerProfile = storedProfile
+      ? JSON.parse(storedProfile)
+      : {
+          minBudget: payload.minBudget ?? 0,
+          maxBudget: payload.maxBudget ?? 0,
+          preferredLocality: payload.preferredLocality || "",
+          preferredPropertyType: payload.preferredPropertyType || "",
+          preferredTransactionType: payload.preferredTransactionType || "",
+        };
+
+    const updatedUser: User = {
+      userId,
+      fullName: payload.fullName ?? existingUser.fullName,
+      email: payload.email ?? existingUser.email,
+      phone: payload.phone,
+      role: existingUser.role || "CUSTOMER",
+    };
+
+    const updatedProfile: CustomerProfile = {
+      minBudget:
+        payload.minBudget !== undefined
+          ? payload.minBudget
+          : existingProfile.minBudget,
+      maxBudget:
+        payload.maxBudget !== undefined
+          ? payload.maxBudget
+          : existingProfile.maxBudget,
+      preferredLocality:
+        payload.preferredLocality ?? existingProfile.preferredLocality,
+      preferredPropertyType:
+        payload.preferredPropertyType ?? existingProfile.preferredPropertyType,
+      preferredTransactionType:
+        payload.preferredTransactionType ?? existingProfile.preferredTransactionType,
+    };
+
+    await AsyncStorage.setItem("app-user", JSON.stringify(updatedUser));
+    await AsyncStorage.setItem("app-profile", JSON.stringify(updatedProfile));
+
+    return {
+      userId: updatedUser.userId,
+      fullName: updatedUser.fullName,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      minBudget: updatedProfile.minBudget,
+      maxBudget: updatedProfile.maxBudget,
+      preferredLocality: updatedProfile.preferredLocality,
+      preferredPropertyType: updatedProfile.preferredPropertyType,
+      preferredTransactionType: updatedProfile.preferredTransactionType,
+    };
+  } catch (error) {
+    console.error("updateCustomerProfile error:", error);
+    throw error;
+  }
+}
+
