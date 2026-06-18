@@ -5,13 +5,15 @@ import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.ProfileUpdateRequest;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.CustomerProfile;
-import com.example.demo.config.*;
+// import com.example.demo.config.*;
 import com.example.demo.config.JwtUtil;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CustomerProfileRepository;
 import com.example.demo.repository.UserRepository;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+// import java.nio.charset.StandardCharsets;
+// import java.util.Base64;
+import java.util.Map;
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -156,7 +158,7 @@ response.setToken(token);
     return response;
 }
 @PutMapping("/profile/{userId}")
-public String updateProfile(
+public Map<String, Object> updateProfile(
         @PathVariable Long userId,
         @RequestBody ProfileUpdateRequest request
 ) {
@@ -165,8 +167,11 @@ public String updateProfile(
             .findById(userId)
             .orElse(null);
 
+    Map<String, Object> response = new HashMap<>();
+
     if (user == null) {
-        return "User not found";
+        response.put("message", "User not found");
+        return response;
     }
 
     user.setFullName(request.getFullName());
@@ -199,6 +204,23 @@ public String updateProfile(
 
     customerProfileRepository.save(profile);
 
-    return "Profile updated successfully";
+    response.put("userId", user.getUserId());
+    response.put("fullName", user.getFullName());
+    response.put("email", user.getEmail());
+    response.put("phone", user.getPhone());
+
+    response.put("minBudget", profile.getBudgetMin());
+    response.put("maxBudget", profile.getBudgetMax());
+
+    response.put("preferredLocality",
+            profile.getPreferredLocality());
+
+    response.put("preferredPropertyType",
+            profile.getPreferredPropertyType());
+
+    response.put("preferredTransactionType",
+            profile.getTransactionType());
+
+    return response;
 }
 }
