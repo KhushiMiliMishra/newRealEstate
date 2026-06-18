@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { properties } from "../data/properties";
+import { getAllProperties } from "../services/propertyService";
 
 const categories = [
   { name: "Apartment", icon: "business-outline" },
@@ -27,8 +27,43 @@ const categories = [
 
 export default function HomeScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
+  const [properties, setProperties] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
   const { user, profile, toggleShortlist, isShortlisted, savedSearches } = useAuth();
 
+  useEffect(() => {
+  loadProperties();
+}, []);
+
+const loadProperties = async () => {
+  try {
+    const data = await getAllProperties();
+
+    console.log("PROPERTIES FROM API:", data);
+
+    const formatted = data.map((property: any) => ({
+      id: property.propertyId.toString(),
+      title: property.title,
+      location: property.city || "Location Not Available",
+      price: `₹${Number(property.price).toLocaleString()}`,
+      image:
+        property.image1 && property.image1.trim() !== ""
+          ? property.image1
+          : "https://picsum.photos/600/400",
+      bhk: `${property.bhk} BHK`,
+      bathrooms: property.bathrooms,
+      areaSqft: property.areaSqft,
+      propertyAge: property.propertyAge,
+    }));
+
+    setProperties(formatted);
+  } catch (error) {
+    console.log("Error loading properties:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+  
   const handleOpenMap = () => {
     // Open external Google Maps search for premium properties in Chennai
     const query = encodeURIComponent("premium real estate Chennai");
@@ -40,20 +75,22 @@ export default function HomeScreen({ navigation }: any) {
     Linking.openURL(url).catch((err) => console.error("An error occurred opening maps:", err));
   };
 
-  const getPropertyStats = (id: string) => {
-    // Return custom specs for the mock listings
-    switch (id) {
-      case "1":
-        return { beds: "3 Beds", baths: "3 Baths", area: "1,850 sq.ft" };
-      case "2":
-        return { beds: "4 Beds", baths: "4 Baths", area: "3,200 sq.ft" };
-      case "3":
-        default:
-        return { beds: "2 Beds", baths: "2 Baths", area: "1,100 sq.ft" };
-    }
-  };
 
+  if (loading) {
   return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>Loading Properties...</Text>
+    </View>
+  );
+}
+  return (
+    
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       
@@ -195,12 +232,14 @@ export default function HomeScreen({ navigation }: any) {
           style={styles.featuredScroll}
         >
           {properties.map((item) => {
-            const specs = getPropertyStats(item.id);
+            const specs = { beds: item.bhk, baths: `${item.bathrooms} Baths`, area: `${item.areaSqft} sqft`, };
             return (
               <Pressable
                 key={item.id}
                 style={[styles.featureCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-                onPress={() => navigation.navigate("PropertyDetail", { propertyId: item.id })}
+               onPress={() => navigation.navigate("PropertyDetail", {propertyId: Number(item.id),
+  })
+}
               >
                 <View>
                   <Image
@@ -256,12 +295,14 @@ export default function HomeScreen({ navigation }: any) {
         </View>
 
         {properties.map((item) => {
-          const specs = getPropertyStats(item.id);
+          const specs = {area: `${item.areaSqft} sqft`,};
           return (
             <Pressable
               key={item.id}
               style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-              onPress={() => navigation.navigate("PropertyDetail", { propertyId: item.id })}
+              onPress={() =>navigation.navigate("PropertyDetail", {propertyId: Number(item.id),
+  })
+}
             >
               <Image
                 source={{ uri: item.image }}
@@ -291,8 +332,13 @@ export default function HomeScreen({ navigation }: any) {
                 </Text>
 
                 <View style={styles.recommendedSpecs}>
-                  <Text style={[styles.recommendedSpecText, { color: colors.secondary }]}>
-                    {item.bhk} • {specs.area}
+                  <Text
+                    style={[
+                      styles.recommendedSpecText,
+                      { color: colors.secondary },
+                    ]}
+                  >
+                    {item.bhk} • {item.areaSqft} sqft
                   </Text>
                   <Text style={styles.availableText}>🟢 Available</Text>
                 </View>

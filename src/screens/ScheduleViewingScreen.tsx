@@ -13,6 +13,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { createViewingRequest }from "../services/viewingService";
 
 const timeSlots = [
   "09:00 AM",
@@ -44,7 +45,7 @@ const generateNextDays = () => {
 
 export default function ScheduleViewingScreen({ route, navigation }: any) {
   const { colors, isDark } = useTheme();
-  const { addViewingRequest } = useAuth();
+  const { user } = useAuth();
   
   const [selectedSlot, setSelectedSlot] = useState("11:00 AM");
   const [selectedDateIdx, setSelectedDateIdx] = useState(0);
@@ -62,32 +63,48 @@ export default function ScheduleViewingScreen({ route, navigation }: any) {
     setCalendarDays(generateNextDays());
   }, []);
 
-  const handleConfirmVisit = () => {
-    if (!selectedSlot) {
-      Alert.alert("Time Slot Needed", "Please select a preferred time slot.");
+const handleConfirmVisit = async () => {
+
+  try {
+
+    if (!user) {
+      Alert.alert(
+        "Login Required"
+      );
       return;
     }
-    if (calendarDays.length === 0) return;
 
-    const chosenDate = calendarDays[selectedDateIdx].fullDateString;
+    const chosenDate =
+      calendarDays[selectedDateIdx]
+      .fullDateString;
 
-    addViewingRequest({
-      propertyId,
-      propertyTitle,
-      propertyPrice,
-      propertyLocation,
-      date: chosenDate,
-      time: selectedSlot,
-      notes: notes || "No special requests.",
-      agentName,
+    await createViewingRequest({
+      propertyId: Number(propertyId),
+      customerId: user.userId,
+      agentId:
+        route.params?.agentId || 1,
+      requestedDate: chosenDate,
+      requestedTime: selectedSlot,
+      notes,
     });
 
     Alert.alert(
-      "Viewing Scheduled!",
-      `Your site visit request for "${propertyTitle}" has been submitted for ${chosenDate} at ${selectedSlot}. The agent will confirm shortly.`,
-      [{ text: "Great", onPress: () => navigation.goBack() }]
+      "Success",
+      "Viewing request submitted"
     );
-  };
+
+    navigation.goBack();
+
+  } catch (error) {
+
+    console.log(error);
+
+    Alert.alert(
+      "Error",
+      "Failed to submit request"
+    );
+  }
+};
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

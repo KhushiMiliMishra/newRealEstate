@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import {
   View,
   Text,
@@ -12,15 +13,50 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { properties } from "../data/properties";
+import { getShortlistedPropertyDetails } from "../services/shortlistService";
+
 
 export default function SavedScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
-  const { shortlistedProperties, toggleShortlist, savedSearches, deleteSavedSearch } = useAuth();
+  const {user,shortlistedProperties,toggleShortlist,savedSearches,deleteSavedSearch} = useAuth();
   const [activeTab, setActiveTab] = useState<"properties" | "searches">("properties");
+  const [savedListings, setSavedListings] =useState<any[]>([]);
+  useEffect(() => {
+  loadShortlistedProperties();
+}, [user]);
+
+const loadShortlistedProperties = async () => {
+  try {
+    if (!user?.userId) return;
+
+    const data = await getShortlistedPropertyDetails(
+      user.userId
+    );
+    console.log("USER:", user);
+    console.log("DATA RECEIVED:", data);
+    // console.log("USER ID:", user.userId);
+    // console.log("Shortlisted Properties:", data);
+
+    const formatted = data.map((property: any) => ({
+      id: property.propertyId.toString(),
+      title: property.title,
+      location: property.city || "Location Not Available",
+      price: `₹${Number(property.price).toLocaleString()}`,
+      image:
+        property.image1 && property.image1.trim() !== ""
+          ? property.image1
+          : "https://picsum.photos/600/400",
+      bhk: `${property.bhk} BHK`,
+    }));
+
+    setSavedListings(formatted);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // Get matching properties from shortlisted IDs
-  const savedListings = properties.filter((p) => shortlistedProperties.includes(p.id));
+ 
 
   const getStatusBadge = (id: string) => {
     const statuses: Record<string, string> = {

@@ -16,7 +16,26 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { properties } from "../data/properties";
+import {getAllProperties,searchProperties,} from "../services/propertyService";
+import {UIManager} from "react-native";
+
+interface Property {
+  id?: number;
+  propertyId?: number;
+
+  title: string;
+
+  city?: string;
+  location?: string;
+
+  price: number;
+  bhk: number;
+
+  propertyType?: string;
+
+  image1?: string;
+  areaSqft?: number;
+}
 
 const categories = ["All", "Apartment", "Villa", "Plot", "Commercial"];
 const bhkOptions = ["Any", "2 BHK", "3 BHK", "4 BHK"];
@@ -45,8 +64,77 @@ export default function SearchScreen({ route, navigation }: any) {
   
   // Collapsible Filters Panel
   const [showFilters, setShowFilters] = useState(false);
+ const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+  if (
+    Platform.OS === "android" &&
+    UIManager.setLayoutAnimationEnabledExperimental
+  ) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}, []);
 
   // Handle route params for preset filters
+  useEffect(() => {
+  loadProperties();
+}, []);
+
+const loadProperties = async () => {
+  try {
+    setLoading(true);
+
+    const data = await getAllProperties();
+
+    setProperties(data || []);
+  } catch (error) {
+    console.log("Load Error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+const handleSearch = async () => {
+  try {
+    console.log("Searching:", {
+      searchQuery,
+      selectedBHK,
+      selectedCategory,
+    });
+
+    setLoading(true);
+
+    const results = await searchProperties(
+      searchQuery || undefined,
+      selectedBHK !== "Any"
+        ? Number(selectedBHK.split(" ")[0])
+        : undefined,
+      selectedCategory !== "All"
+        ? selectedCategory
+        : undefined,
+      "SALE"
+    );
+
+    console.log("Search Results:", results);
+
+    setProperties(results || []);
+  } catch (error) {
+    console.log("Search Error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+// useEffect(() => {
+//   const timeout = setTimeout(() => {
+//     handleSearch();
+//   }, 500);
+
+//   return () => clearTimeout(timeout);
+// }, [
+//   searchQuery,
+//   selectedCategory,
+//   selectedBHK,
+// ]);
   useEffect(() => {
     if (route.params?.category) {
       setSelectedCategory(route.params.category);
@@ -57,50 +145,59 @@ export default function SearchScreen({ route, navigation }: any) {
   }, [route.params]);
 
   // Helper: parse string price like "₹1.2 Cr", "₹95 L" to numbers for comparison
-  const parsePrice = (priceStr: string): number => {
-    const cleanStr = priceStr.replace(/[^\d.]/g, "");
-    const numericVal = parseFloat(cleanStr);
-    if (priceStr.includes("Cr")) {
-      return numericVal * 10000000;
-    } else if (priceStr.includes("L")) {
-      return numericVal * 100000;
-    }
-    return numericVal;
-  };
-
+ const parsePrice = (price: any): number => {
+  return Number(price) || 0;
+};
   // Filter listings
-  let filteredProperties = properties.filter((item) => {
-    // Search Query matches Title or Location
-    const matchesQuery =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchQuery.toLowerCase());
+ let filteredProperties = properties.filter((item) => {
+  // Search by title or city
 
-    // Category filter
-    const matchesCategory =
-      selectedCategory === "All" || item.title.includes(selectedCategory) || (selectedCategory === "Apartment" && item.title.includes("Apartment")) || (selectedCategory === "Villa" && item.title.includes("Villa")) || (selectedCategory === "Plot" && item.title.includes("Plot")) || (selectedCategory === "Commercial" && item.title.includes("Commercial"));
+ const matchesQuery =
+  !searchQuery ||
+  item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  item.city?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // BHK filter
-    const matchesBHK =
-      selectedBHK === "Any" || item.bhk === selectedBHK;
+  // Category
 
-    // Price/Budget range filter
-    const propertyPriceNum = parsePrice(item.price);
-    const budgetLimit = budgetOptions[selectedBudgetIdx];
-    const matchesBudget =
-      propertyPriceNum >= budgetLimit.min && propertyPriceNum <= budgetLimit.max;
+  const matchesCategory =
+    selectedCategory === "All" ||
+    item.propertyType?.toLowerCase() ===
+      selectedCategory.toLowerCase();
 
-    return matchesQuery && matchesCategory && matchesBHK && matchesBudget;
-  });
+  // BHK
+
+  const matchesBHK =
+    selectedBHK === "Any" ||
+    item.bhk === Number(selectedBHK.split(" ")[0]);
+
+  // Budget
+
+  const propertyPriceNum = Number(item.price);
+
+  const budgetLimit = budgetOptions[selectedBudgetIdx];
+
+  const matchesBudget =
+    propertyPriceNum >= budgetLimit.min &&
+    propertyPriceNum <= budgetLimit.max;
+
+  return (
+    matchesQuery &&
+    matchesCategory &&
+    matchesBHK &&
+    matchesBudget
+  );
+});
 
   // Sort listings
   if (selectedSort === "price_asc") {
     filteredProperties = [...filteredProperties].sort(
-      (a, b) => parsePrice(a.price) - parsePrice(b.price)
-    );
+  (a, b) => Number(a.price) - Number(b.price)
+);
   } else if (selectedSort === "price_desc") {
     filteredProperties = [...filteredProperties].sort(
-      (a, b) => parsePrice(b.price) - parsePrice(a.price)
-    );
+  (a, b) => Number(b.price) - Number(a.price)
+);
   }
 
   const toggleFiltersPanel = () => {
@@ -269,11 +366,15 @@ export default function SearchScreen({ route, navigation }: any) {
           {filteredProperties.length} Properties Found
         </Text>
       </View>
+      
 
       {/* LIST OF PROPERTIES */}
-      <FlatList
-        data={filteredProperties}
-        keyExtractor={(item) => item.id}
+      <FlatList  refreshing={loading}
+      onRefresh={loadProperties}
+      data={filteredProperties}
+       keyExtractor={(item, index) =>
+          (item.propertyId || item.id || index).toString()
+        }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
@@ -303,24 +404,45 @@ export default function SearchScreen({ route, navigation }: any) {
           <TouchableOpacity
             style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
             onPress={() =>
-              navigation.navigate("PropertyDetail", { propertyId: item.id })
+              navigation.navigate("PropertyDetail", {propertyId: item.propertyId ?? item.id,})
             }
           >
             <View>
               <Image
-                source={{ uri: item.image }}
-                style={styles.image}
-              />
+                  source={{
+                    uri:
+                      item.image1 ||
+                      "https://picsum.photos/800/500",
+                  }}
+                  style={styles.image}
+                />
 
               <TouchableOpacity
                 style={[styles.heartBtn, { backgroundColor: colors.cardBg }]}
-                onPress={() => toggleShortlist(item.id)}
+                onPress={(e) => {
+                    e.stopPropagation();
+                    toggleShortlist(
+                      String(item.propertyId || item.id || 0)
+                    );
+                  }}
               >
-                <Ionicons
-                  name={isShortlisted(item.id) ? "heart" : "heart-outline"}
-                  size={18}
-                  color={isShortlisted(item.id) ? "#EF4444" : colors.text}
-                />
+              <Ionicons
+                name={
+                  isShortlisted(
+                    String(item.propertyId || item.id || 0)
+                  )
+                    ? "heart"
+                    : "heart-outline"
+                }
+                size={18}
+                color={
+                  isShortlisted(
+                    String(item.propertyId || item.id || 0)
+                  )
+                    ? "#EF4444"
+                    : colors.text
+                }
+              />
               </TouchableOpacity>
 
               <View style={styles.quickBadge}>
@@ -331,28 +453,31 @@ export default function SearchScreen({ route, navigation }: any) {
             <View style={styles.cardContent}>
               <View style={styles.priceRow}>
                 <Text style={[styles.price, { color: colors.primary }]}>
-                  {item.price}
+                  ₹{Number(item.price).toLocaleString()}
                 </Text>
                 <Text style={[styles.areaText, { color: colors.mutedText }]}>
-                  {item.id === "1" ? "1,850 sq.ft" : item.id === "2" ? "3,200 sq.ft" : "1,100 sq.ft"}
-                </Text>
+                    {item.areaSqft || 0} sq.ft
+                  </Text>
               </View>
 
               <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
                 {item.title}
               </Text>
 
-              <Text style={[styles.location, { color: colors.mutedText }]} numberOfLines={1}>
-                📍 {item.location}
-              </Text>
+              <Text
+                  style={[styles.location, { color: colors.mutedText }]}
+                  numberOfLines={1}
+                >
+                  📍 {item.city}
+                </Text>
 
               <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
               <View style={styles.bottomRow}>
                 <View style={[styles.badge, { backgroundColor: colors.secondary }]}>
                   <Text style={styles.badgeText}>
-                    {item.bhk}
-                  </Text>
+                      {item.bhk} BHK
+                    </Text>
                 </View>
 
                 <View style={styles.viewRow}>
