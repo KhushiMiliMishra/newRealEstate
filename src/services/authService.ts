@@ -36,7 +36,7 @@ export const updateCustomerProfile = async (
   profileData: any
 ) => {
   const response = await api.put(
-    `/api/customer/profile/${userId}`,
+    `/api/auth/profile/${userId}`,
     profileData
   );
 

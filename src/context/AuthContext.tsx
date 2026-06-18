@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { loginUser, registerUser } from "../services/authService";
 import { getShortlistedProperties } from "../services/shortlistService";
 import { addToShortlist, removeFromShortlist } from "../services/shortlistService";
+import { updateCustomerProfile } from "../services/authService";
 
 export interface User {
   userId: number;
@@ -372,7 +373,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("STEP 2");
 
     const response = await loginUser(email, password);
-
+    console.log("LOGGED IN USER:", response.userId);
+    console.log("PROFILE FROM DB:", {
+      locality: response.preferredLocality,
+      type: response.preferredPropertyType,
+      transaction: response.transactionType,
+    });
     console.log("STEP 3");
     console.log("LOGIN RESPONSE:", response);
 
@@ -398,25 +404,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         response.transactionType || "",
     };
         console.log("STEP 5");
-
+        console.log("USER ID:", response.userId);
+        console.log("PROFILE DATA:", profileData);
     setUser(userData);
     setIsAuthenticated(true);
       try {
-      const shortlist = await getShortlistedProperties(
-        response.userId
+      const shortlist =
+        await getShortlistedProperties(
+          response.userId
+        );
+
+      console.log(
+        "SHORTLIST SUCCESS:",
+        shortlist
       );
 
-      console.log("SHORTLIST:", shortlist);
-
       setShortlistedProperties(
-      shortlist.map((id: number) =>
-        id.toString()
-      )
-    );
+        shortlist.map((id: number) =>
+          id.toString()
+        )
+      );
     } catch (error) {
-      console.log("Shortlist load failed:", error);
-      setShortlistedProperties([]);
-    }
+      console.log(
+        "SHORTLIST LOAD FAILED:",
+        error
+      );
+
+  setShortlistedProperties([]);
+}
 
     await AsyncStorage.setItem(
       "app-user",
@@ -496,7 +511,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (
   updatedData: Partial<User & CustomerProfile>
-) => {
+): Promise<void> => {
   if (!user) return;
 
   try {
@@ -534,11 +549,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profile?.preferredTransactionType,
     };
 
+    console.log("PAYLOAD:", payload);
+
     const response =
-      (await updateCustomerProfile(
+      await updateCustomerProfile(
         user.userId,
         payload
-      )) as User & CustomerProfile & { token?: string };
+      );
+
+console.log("RESPONSE:", response);
 
     const updatedUser: User = {
       userId: response.userId,
@@ -561,90 +580,93 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         response.preferredTransactionType,
     };
 
-    setUser(nextUser);
-    setProfile(nextProfile);
-    await AsyncStorage.setItem("app-user", JSON.stringify(nextUser));
-    await AsyncStorage.setItem("app-profile", JSON.stringify(nextProfile));
-  };
-
-const toggleShortlist = async (
-  propertyId: string
-) => {
-
-  if (!user) return;
-
-  try {
-
-    if (
-      shortlistedProperties.includes(propertyId)
-    ) {
-
-      console.log(
-        "REMOVE CLICKED:",
-        user.userId,
-        propertyId
-      );
-
-      await removeFromShortlist(
-        user.userId,
-        Number(propertyId)
-      );
-
-      console.log(
-        "DELETE API COMPLETED"
-      );
-
-      const updated =
-        shortlistedProperties.filter(
-          (id) => id !== propertyId
-        );
-
-      setShortlistedProperties(updated);
-
-      await AsyncStorage.setItem(
-        "app-shortlisted",
-        JSON.stringify(updated)
-      );
-
-    } else {
-
-      console.log(
-        "ADD CLICKED:",
-        user.userId,
-        propertyId
-      );
-
-      await addToShortlist(
-        user.userId,
-        Number(propertyId)
-      );
-
-      console.log(
-        "ADD API COMPLETED"
-      );
-
-      const updated = [
-        ...shortlistedProperties,
-        propertyId,
-      ];
-
-      setShortlistedProperties(updated);
-
-      await AsyncStorage.setItem(
-        "app-shortlisted",
-        JSON.stringify(updated)
-      );
-    }
-
+    setUser(updatedUser);
+    setProfile(updatedProfile);
+    await AsyncStorage.setItem("app-user", JSON.stringify(updatedUser));
+    await AsyncStorage.setItem("app-profile", JSON.stringify(updatedProfile));
   } catch (error) {
-
-    console.log(
-      "SHORTLIST ERROR:",
-      error
-    );
-
+    console.log("UPDATE PROFILE ERROR:", error);
   }
 };
+
+// const toggleShortlist = async (
+//   propertyId: string
+// ) => {
+
+//   if (!user) return;
+
+//   try {
+
+//     if (
+//       shortlistedProperties.includes(propertyId)
+//     ) {
+
+//       console.log(
+//         "REMOVE CLICKED:",
+//         user.userId,
+//         propertyId
+//       );
+
+//       await removeFromShortlist(
+//         user.userId,
+//         Number(propertyId)
+//       );
+
+//       console.log(
+//         "DELETE API COMPLETED"
+//       );
+
+//       const updated =
+//         shortlistedProperties.filter(
+//           (id) => id !== propertyId
+//         );
+
+//       setShortlistedProperties(updated);
+
+//       await AsyncStorage.setItem(
+//         "app-shortlisted",
+//         JSON.stringify(updated)
+//       );
+
+//     } else {
+
+//       console.log(
+//         "ADD CLICKED:",
+//         user.userId,
+//         propertyId
+//       );
+
+//       await addToShortlist(
+//         user.userId,
+//         Number(propertyId)
+//       );
+
+//       console.log(
+//         "ADD API COMPLETED"
+//       );
+
+//       const updated = [
+//         ...shortlistedProperties,
+//         propertyId,
+//       ];
+
+//       setShortlistedProperties(updated);
+
+//       await AsyncStorage.setItem(
+//         "app-shortlisted",
+//         JSON.stringify(updated)
+//       );
+//     }
+
+//   } catch (error) {
+
+//     console.log(
+//       "SHORTLIST ERROR:",
+//       error
+//     );
+
+//   }
+// };
   const isShortlisted = (propertyId: string): boolean => {
     return shortlistedProperties.includes(propertyId);
   };
@@ -901,85 +923,5 @@ const toggleShortlist = async (
 };
 
 export const useAuth = () => useContext(AuthContext);
-async function updateCustomerProfile(
-  userId: number,
-  payload: {
-    fullName: string;
-    email: string;
-    phone: string | undefined;
-    minBudget: number | undefined;
-    maxBudget: number | undefined;
-    preferredLocality: string | undefined;
-    preferredPropertyType: string | undefined;
-    preferredTransactionType: string | undefined;
-  }
-) {
-  try {
-    const storedUser = await AsyncStorage.getItem("app-user");
-    const storedProfile = await AsyncStorage.getItem("app-profile");
 
-    const existingUser: User = storedUser
-      ? JSON.parse(storedUser)
-      : {
-          userId,
-          fullName: payload.fullName || "",
-          email: payload.email || "",
-          phone: payload.phone,
-          role: "CUSTOMER",
-        };
-
-    const existingProfile: CustomerProfile = storedProfile
-      ? JSON.parse(storedProfile)
-      : {
-          minBudget: payload.minBudget ?? 0,
-          maxBudget: payload.maxBudget ?? 0,
-          preferredLocality: payload.preferredLocality || "",
-          preferredPropertyType: payload.preferredPropertyType || "",
-          preferredTransactionType: payload.preferredTransactionType || "",
-        };
-
-    const updatedUser: User = {
-      userId,
-      fullName: payload.fullName ?? existingUser.fullName,
-      email: payload.email ?? existingUser.email,
-      phone: payload.phone,
-      role: existingUser.role || "CUSTOMER",
-    };
-
-    const updatedProfile: CustomerProfile = {
-      minBudget:
-        payload.minBudget !== undefined
-          ? payload.minBudget
-          : existingProfile.minBudget,
-      maxBudget:
-        payload.maxBudget !== undefined
-          ? payload.maxBudget
-          : existingProfile.maxBudget,
-      preferredLocality:
-        payload.preferredLocality ?? existingProfile.preferredLocality,
-      preferredPropertyType:
-        payload.preferredPropertyType ?? existingProfile.preferredPropertyType,
-      preferredTransactionType:
-        payload.preferredTransactionType ?? existingProfile.preferredTransactionType,
-    };
-
-    await AsyncStorage.setItem("app-user", JSON.stringify(updatedUser));
-    await AsyncStorage.setItem("app-profile", JSON.stringify(updatedProfile));
-
-    return {
-      userId: updatedUser.userId,
-      fullName: updatedUser.fullName,
-      email: updatedUser.email,
-      phone: updatedUser.phone,
-      minBudget: updatedProfile.minBudget,
-      maxBudget: updatedProfile.maxBudget,
-      preferredLocality: updatedProfile.preferredLocality,
-      preferredPropertyType: updatedProfile.preferredPropertyType,
-      preferredTransactionType: updatedProfile.preferredTransactionType,
-    };
-  } catch (error) {
-    console.error("updateCustomerProfile error:", error);
-    throw error;
-  }
-}
 

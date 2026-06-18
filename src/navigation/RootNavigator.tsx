@@ -1,23 +1,22 @@
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import SplashScreen from "../screens/SplashScreen";
-import OnboardingScreen from "../screens/OnboardingScreen";
+import AgentProfileScreen from "../screens/AgentProfileScreen";
+import ChatDetailScreen from "../screens/ChatDetailScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
 import LoginScreen from "../screens/LoginScreen";
+import NotificationsScreen from "../screens/NotificationsScreen";
+import OnboardingScreen from "../screens/OnboardingScreen";
+import PropertyDetailScreen from "../screens/PropertyDetailScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import ScheduleViewingScreen from "../screens/ScheduleViewingScreen";
-import BottomTabNavigator from "./BottomTabNavigator";
-import ChatDetailScreen from "../screens/ChatDetailScreen";
-import NotificationsScreen from "../screens/NotificationsScreen";
 import SearchScreen from "../screens/SearchScreen";
-import PropertyDetailScreen from "../screens/PropertyDetailScreen";
-import EditProfileScreen from "../screens/EditProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import AgentProfileScreen from "../screens/AgentProfileScreen";
+import SplashScreen from "../screens/SplashScreen";
+import BottomTabNavigator from "./BottomTabNavigator";
 
 
 
-import { RootStackParamList } from "./types";
+import { RootStackParamList } from "../services/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

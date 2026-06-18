@@ -231,7 +231,7 @@ const loadProperties = async () => {
           showsHorizontalScrollIndicator={false}
           style={styles.featuredScroll}
         >
-          {properties.map((item) => {
+          {properties.slice(-7).map((item) => {
             const specs = { beds: item.bhk, baths: `${item.bathrooms} Baths`, area: `${item.areaSqft} sqft`, };
             return (
               <Pressable
@@ -294,7 +294,7 @@ const loadProperties = async () => {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended For You</Text>
         </View>
 
-        {properties.map((item) => {
+        {properties.slice(0, 5).map((item) => {
           const specs = {area: `${item.areaSqft} sqft`,};
           return (
             <Pressable

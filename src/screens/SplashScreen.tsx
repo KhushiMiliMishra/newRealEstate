@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, ImageBackground, ActivityIndicator } from "react-native";
-import { useEffect } from "react";
-import { useTheme } from "../theme/ThemeContext";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/types";
+import { useEffect } from "react";
+import { ActivityIndicator, ImageBackground, StyleSheet, Text, View } from "react-native";
+import { RootStackParamList } from "../services/types";
+import { useTheme } from "../theme/ThemeContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 

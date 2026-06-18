@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   StatusBar,
   Alert,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
@@ -48,19 +49,32 @@ const [locality, setLocality] =
     const maxB = parseFloat(maxBudget) || 0;
 
     await updateProfile({
-      fullName,
-      email,
-      phone,
-      minBudget: minB,
-      maxBudget: maxB,
-      preferredLocality: locality,
-      preferredPropertyType: propertyType,
-      preferredTransactionType: transactionType,
-    });
+  fullName,
+  email,
+  phone,
+  minBudget: minB,
+  maxBudget: maxB,
+  preferredLocality: locality,
+  preferredPropertyType: propertyType,
+  preferredTransactionType: transactionType,
+});
 
-    Alert.alert("Success", "Search preferences updated successfully!", [
-      { text: "OK", onPress: () => navigation.goBack() }
-    ]);
+if (Platform.OS === "web") {
+  window.alert("Profile updated successfully!");
+  navigation.goBack();
+} else {
+  Alert.alert(
+    "Success",
+    "Profile updated successfully!",
+    [
+      {
+        text: "OK",
+        onPress: () => navigation.goBack(),
+      },
+    ]
+  );
+}
+
   };
 
   return (
